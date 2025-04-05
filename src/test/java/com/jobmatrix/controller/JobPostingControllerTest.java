@@ -1,81 +1,60 @@
 package com.jobmatrix.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.BaseTest;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ProjectDuration;
-import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.service.JobPostingService;
+import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @WebMvcTest(JobPostingController.class)
-public class JobPostingControllerTest extends BaseTest {
+public class JobPostingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private JobPostingService jobPostingService;
-
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private JobPostingService jobPostingService;
+
     @Test
-    public void testCreateJobPosting() throws Exception {
-        // Given
-        JobPostingDTO jobPostingDTO = new JobPostingDTO();
-        jobPostingDTO.setClientId(UUID.randomUUID());
-        jobPostingDTO.setTitle("Test Job");
-        jobPostingDTO.setDescription("Test Description");
-        jobPostingDTO.setBudgetType(BudgetType.HOURLY);
-        jobPostingDTO.setHourlyMinRate(50);
-        jobPostingDTO.setHourlyMaxRate(100);
-        jobPostingDTO.setProjectDuration(ProjectDuration.SHORT_TERM);
-        jobPostingDTO.setExperienceLevel(ExperienceLevel.BEGINNER);
-        jobPostingDTO.setCategoryId(1L);
+    void testCreateJobPosting() throws Exception {
+        UUID clientId = UUID.randomUUID();
 
-        JobPosting mockJobPosting = new JobPosting();
-        mockJobPosting.setJobPostingId(1L);
-        mockJobPosting.setCreatedAt(LocalDateTime.now());
-        mockJobPosting.setUpdatedAt(LocalDateTime.now());
+        JobPostingDTO jobPostingDTO = JobPostingTestDataFactory.createDTO(clientId);
+        JobPosting mockJobPosting = JobPostingTestDataFactory.createEntity();
 
-        when(jobPostingService.createJobPosting(any(JobPostingDTO.class))).thenReturn(mockJobPosting);
+        Mockito.when(jobPostingService.createJobPosting(Mockito.any(JobPostingDTO.class)))
+                .thenReturn(mockJobPosting);
 
-        // When/Then
-        mockMvc.perform(post("/api/v1/job-postings")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(jobPostingDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.jobPostingId").value(1))
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.updatedAt").exists());
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job-postings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(jobPostingDTO)))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
     }
 
     @Test
-    public void testCreateJobPostingWithInvalidData() throws Exception {
-        // Given
-        JobPostingDTO jobPostingDTO = new JobPostingDTO();
-        // Missing required fields
+    void testCreateJobPostingWithInvalidData() throws Exception {
+        JobPostingDTO invalidDTO = new JobPostingDTO(); // Missing required fields
 
-        // When/Then
-        mockMvc.perform(post("/api/v1/job-postings")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(jobPostingDTO)))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job-postings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
-} 
+}

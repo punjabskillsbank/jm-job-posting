@@ -7,43 +7,37 @@ import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.service.JobPostingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
+@RequiredArgsConstructor
 public class JobPostingServiceImpl implements JobPostingService {
 
-    @Autowired
-    private JobPostingRepository jobPostingRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final JobPostingRepository jobPostingRepository;
+    private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     @Transactional
     public JobPosting createJobPosting(JobPostingDTO jobPostingDTO) {
-        JobPosting jobPosting = new JobPosting();
-        jobPosting.setClientId(jobPostingDTO.getClientId());
-        jobPosting.setTitle(jobPostingDTO.getTitle());
-        jobPosting.setDescription(jobPostingDTO.getDescription());
-        jobPosting.setBudgetType(jobPostingDTO.getBudgetType());
-        jobPosting.setHourlyMinRate(jobPostingDTO.getHourlyMinRate());
-        jobPosting.setHourlyMaxRate(jobPostingDTO.getHourlyMaxRate());
-        jobPosting.setFixedPrice(jobPostingDTO.getFixedPrice());
-        jobPosting.setProjectDuration(jobPostingDTO.getProjectDuration());
-        jobPosting.setExperienceLevel(jobPostingDTO.getExperienceLevel());
+        // Map DTO to Entity
+        JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
+
+        // Ensure it's treated as a new entity
+        jobPosting.setJobPostingId(null);
+
+        // Set default job posting status
         jobPosting.setJobPostingStatus(JobPostingStatus.DRAFT);
-        
+
+        // Fetch category and set it
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         jobPosting.setCategory(category);
-        
-        jobPosting.setCreatedAt(LocalDateTime.now());
-        jobPosting.setUpdatedAt(LocalDateTime.now());
-        
+
+        // Save and return
         return jobPostingRepository.save(jobPosting);
     }
-} 
+}
