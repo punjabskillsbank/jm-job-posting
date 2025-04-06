@@ -4,6 +4,7 @@ import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
+import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.service.JobPostingService;
@@ -34,7 +35,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         // Fetch category and set it
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
         jobPosting.setCategory(category);
 
         // Save and return
