@@ -22,7 +22,6 @@ public class JobPosting {
     @Column(name = "client_id", nullable = false)
     private UUID clientId;
 
-    @Column(name = "title")
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")

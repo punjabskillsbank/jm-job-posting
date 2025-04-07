@@ -16,10 +16,8 @@ public class Category {
     @Column(name = "category_id")
     private Long categoryId;
 
-    @Column(name = "category")
     private String category;
 
-    @Column(name = "speciality")
     private String speciality;
 
     @CreationTimestamp
@@ -29,6 +27,4 @@ public class Category {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
 }

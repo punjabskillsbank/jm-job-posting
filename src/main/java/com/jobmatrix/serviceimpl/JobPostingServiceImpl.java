@@ -35,7 +35,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         // Fetch category and set it
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
         jobPosting.setCategory(category);
 
         // Save and return
