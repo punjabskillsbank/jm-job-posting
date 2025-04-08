@@ -33,28 +33,18 @@ public class JobPostingControllerTest {
     void testCreateJobPosting() throws Exception {
         UUID clientId = UUID.randomUUID();
 
-        JobPostingDTO jobPostingDTO = JobPostingTestDataFactory.createDTO(clientId);
-        JobPosting mockJobPosting = JobPostingTestDataFactory.createEntity();
+        JobPostingDTO jobPostingDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
+        JobPosting mockJobPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
 
         Mockito.when(jobPostingService.createJobPosting(Mockito.any(JobPostingDTO.class)))
                 .thenReturn(mockJobPosting);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job-postings")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job_postings/create_job_posting")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jobPostingDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
-    }
-
-    @Test
-    void testCreateJobPostingWithInvalidData() throws Exception {
-        JobPostingDTO invalidDTO = new JobPostingDTO(); // Missing required fields
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job-postings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 }

@@ -5,13 +5,15 @@ import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.entity.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class JobPostingDTO {
 
     @NotNull(message = "client_id cannot be null.")
