@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/job_postings")
 @Tag(name = "Job Posting ", description = "Operations related to job posting ")
@@ -21,5 +23,11 @@ public class JobPostingController {
     public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
         JobPosting createdJobPosting = jobPostingService.createJobPosting(jobPostingDTO);
         return new ResponseEntity<>(createdJobPosting, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{jobPostingId}")
+    public ResponseEntity<List<JobPosting>> getOpenJobPostings() {
+        List<JobPosting> openJobPostings = (List<JobPosting>) jobPostingService.getOpenJobPostings();
+        return ResponseEntity.ok(openJobPostings);
     }
 } 
