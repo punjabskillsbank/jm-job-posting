@@ -133,4 +133,35 @@ public class JobPostingServiceImplTest {
 
         verify(jobPostingRepository).findByJobPostingStatus(JobPostingStatus.OPEN);
     }
+
+    @Test
+    public void testGetOpenJobPostings_WithMultipleStatuses_ShouldReturnOnlyOpenJobs() {
+        JobPosting openJob1 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting openJob2 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting draftJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting inReviewJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting inProgressJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting closedJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        JobPosting completedJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+
+        openJob1.setJobPostingStatus(JobPostingStatus.OPEN);
+        openJob2.setJobPostingStatus(JobPostingStatus.OPEN);
+        draftJob.setJobPostingStatus(JobPostingStatus.DRAFT);
+        inReviewJob.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
+        inProgressJob.setJobPostingStatus(JobPostingStatus.IN_PROGRESS);
+        closedJob.setJobPostingStatus(JobPostingStatus.CLOSED);
+        completedJob.setJobPostingStatus(JobPostingStatus.COMPLETED);
+
+        when(jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN))
+                .thenReturn(List.of(openJob1, openJob2));
+
+        List<JobPosting> result = jobPostingService.getOpenJobPostings();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(job -> job.getJobPostingStatus() == JobPostingStatus.OPEN));
+
+        verify(jobPostingRepository, times(1)).findByJobPostingStatus(JobPostingStatus.OPEN);
+    }
+
 }
