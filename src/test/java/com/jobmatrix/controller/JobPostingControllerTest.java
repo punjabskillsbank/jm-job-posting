@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
 import java.util.UUID;
 
 @WebMvcTest(JobPostingController.class)
@@ -47,4 +48,22 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
     }
+
+    @Test
+    void testGetOpenJobPostings() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        List<JobPosting> mockJobPostings = List.of(
+                JobPostingTestDataFactory.createJobPostingEntity(clientId),
+                JobPostingTestDataFactory.createJobPostingEntity(clientId) // You can tweak for variation
+        );
+
+        Mockito.when(jobPostingService.getOpenJobPostings()).thenReturn(mockJobPostings);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/open_job_postings"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].jobPostingId").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Sample Job"));
+    }
+
 }

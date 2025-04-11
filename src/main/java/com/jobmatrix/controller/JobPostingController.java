@@ -25,9 +25,9 @@ public class JobPostingController {
         return new ResponseEntity<>(createdJobPosting, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{jobPostingId}")
+    @GetMapping("/open_job_postings")
     public ResponseEntity<List<JobPosting>> getOpenJobPostings() {
-        List<JobPosting> openJobPostings = (List<JobPosting>) jobPostingService.getOpenJobPostings();
+        List<JobPosting> openJobPostings = jobPostingService.getOpenJobPostings();
         return ResponseEntity.ok(openJobPostings);
     }
 } 
