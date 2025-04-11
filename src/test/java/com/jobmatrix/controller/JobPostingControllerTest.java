@@ -54,7 +54,7 @@ public class JobPostingControllerTest {
         UUID clientId = UUID.randomUUID();
         List<JobPosting> mockJobPostings = List.of(
                 JobPostingTestDataFactory.createJobPostingEntity(clientId),
-                JobPostingTestDataFactory.createJobPostingEntity(clientId) // You can tweak for variation
+                JobPostingTestDataFactory.createJobPostingEntity(clientId)
         );
 
         Mockito.when(jobPostingService.getOpenJobPostings()).thenReturn(mockJobPostings);
