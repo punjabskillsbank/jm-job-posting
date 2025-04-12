@@ -4,6 +4,7 @@ import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
+import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.serviceimpl.JobPostingServiceImpl;
@@ -14,8 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -163,5 +167,45 @@ public class JobPostingServiceImplTest {
 
         verify(jobPostingRepository, times(1)).findByJobPostingStatus(JobPostingStatus.OPEN);
     }
+
+    @Test
+    void getJobPostingById_shouldReturnJobPostingEntity() {
+        long jobPostingId = 1L;
+        JobPosting mockJobPosting = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        mockJobPosting.setJobPostingId(jobPostingId);
+
+        when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.of(mockJobPosting));
+
+        JobPosting result = jobPostingService.getJobPostingById(jobPostingId);
+
+        assertNotNull(result);
+        assertEquals(mockJobPosting.getJobPostingId(), result.getJobPostingId());
+        assertEquals(mockJobPosting.getTitle(), result.getTitle());
+        assertEquals(mockJobPosting.getDescription(), result.getDescription());
+        assertEquals(mockJobPosting.getBudgetType(), result.getBudgetType());
+        assertEquals(mockJobPosting.getHourlyMinRate(), result.getHourlyMinRate());
+        assertEquals(mockJobPosting.getHourlyMaxRate(), result.getHourlyMaxRate());
+        assertEquals(mockJobPosting.getProjectDuration(), result.getProjectDuration());
+        assertEquals(mockJobPosting.getExperienceLevel(), result.getExperienceLevel());
+
+        verify(jobPostingRepository, times(1)).findById(jobPostingId);
+    }
+
+    @Test
+    void getJobPostingById_shouldThrowJobPostingNotFoundException() {
+        long jobPostingId = 2L;
+
+        when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.empty());
+
+        JobPostingNotFoundException exception = assertThrows(
+                JobPostingNotFoundException.class,
+                () -> jobPostingService.getJobPostingById(jobPostingId),
+                "JobPosting not found at given jobPostingId"
+        );
+
+        assertEquals("JobPosting not found at given jobPostingId: " + jobPostingId, exception.getMessage());
+        verify(jobPostingRepository, times(1)).findById(jobPostingId);
+    }
+
 
 }

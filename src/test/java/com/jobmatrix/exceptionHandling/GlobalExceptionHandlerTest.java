@@ -21,6 +21,11 @@ class GlobalExceptionHandlerTest {
         public String throwCategoryNotFoundException() {
             throw new CategoryNotFoundException(5L); // Correct usage
         }
+
+        @GetMapping("/test-job-posting-not-found")
+        public String throwJobPostingNotFoundException() {
+            throw new JobPostingNotFoundException(7L);
+        }
     }
 
     @BeforeEach
@@ -37,4 +42,13 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Category not found at given categoryId: 5"));
     }
+
+    @Test
+    void handleJobPostingNotFound_ShouldReturnNotFoundWithMessage() throws Exception {
+        mockMvc.perform(get("/test-job-posting-not-found")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("JobPosting not found at given jobPostingId: 7"));
+    }
+
 }
