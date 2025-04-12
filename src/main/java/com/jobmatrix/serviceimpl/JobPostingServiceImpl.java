@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class JobPostingServiceImpl implements JobPostingService {
@@ -26,19 +28,21 @@ public class JobPostingServiceImpl implements JobPostingService {
     public JobPosting createJobPosting(JobPostingDTO jobPostingDTO) {
         // Map DTO to Entity
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
-
         // Ensure it's treated as a new entity
         jobPosting.setJobPostingId(null);
-
         // Set default job posting status
         jobPosting.setJobPostingStatus(JobPostingStatus.DRAFT);
-
         // Fetch category and set it
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
         jobPosting.setCategory(category);
-
         // Save and return
         return jobPostingRepository.save(jobPosting);
+    }
+
+    @Override
+    public List<JobPosting> getOpenJobPostings() {
+        return jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN);
+
     }
 }
