@@ -13,5 +13,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(JobPostingNotFoundException.class)
+    public ResponseEntity<String> handleJobPostingNotFoundException(JobPostingNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
     // You can add more @ExceptionHandler methods here for other custom exceptions
 }
