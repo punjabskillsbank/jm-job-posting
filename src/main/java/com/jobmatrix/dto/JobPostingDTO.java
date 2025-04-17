@@ -16,6 +16,8 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public class JobPostingDTO {
 
+    private Long jobPostingId;
+
     @NotNull(message = "client_id cannot be null.")
     private UUID clientId;
 
