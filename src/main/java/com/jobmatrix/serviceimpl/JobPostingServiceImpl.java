@@ -1,11 +1,16 @@
 package com.jobmatrix.serviceimpl;
 
+import com.common.exceptionHandeling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
+
+import com.jobmatrix.exceptionHandling.JobPostingByClientIdNotFoundException;
+import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
+import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+import org.apache.log4j.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +28,10 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final CategoryRepository categoryRepository;
+    private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+
+    private static final Logger logger = Logger.getLogger(JobPostingServiceImpl.class);
 
     @Override
     @Transactional
@@ -43,6 +53,30 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     public List<JobPosting> getOpenJobPostings() {
         return jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN);
+    }
 
+    @Override
+    public JobPosting getJobPostingById(Long jobPostingId) {
+        return jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));
+    }
+
+    @Override
+    public List<JobPosting> getJobPostingsByClientId(UUID clientId) {
+        logger.info("Checking client existence for ID: " + clientId);
+        // Check if client exists
+        if (clientRepository.findById(clientId).isEmpty()) {
+            throw new ClientNotFoundException(clientId);
+        }
+
+
+        logger.info("Fetching job postings for client ID: " + clientId);
+
+        List<JobPosting> jobPostings = jobPostingRepository.findByClientId(clientId);
+        // Check if job postings exist for the client
+        if (jobPostings.isEmpty()) {
+            throw new JobPostingByClientIdNotFoundException(clientId);
+        }
+        return jobPostings;
     }
 }

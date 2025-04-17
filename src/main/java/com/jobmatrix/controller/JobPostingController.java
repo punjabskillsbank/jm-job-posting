@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/job_postings")
@@ -29,5 +30,17 @@ public class JobPostingController {
     public ResponseEntity<List<JobPosting>> getOpenJobPostings() {
         List<JobPosting> openJobPostings = jobPostingService.getOpenJobPostings();
         return ResponseEntity.ok(openJobPostings);
+    }
+
+    @GetMapping("/{jobPostingId}")
+    public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobPostingId){
+        JobPosting jobPosting = jobPostingService.getJobPostingById(jobPostingId);
+        return ResponseEntity.ok(jobPosting);
+    }
+
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<JobPosting>> getJobPostingsByClientId(@PathVariable UUID clientId) {
+        List<JobPosting> jobPostings = jobPostingService.getJobPostingsByClientId(clientId);
+        return ResponseEntity.ok(jobPostings);
     }
 } 

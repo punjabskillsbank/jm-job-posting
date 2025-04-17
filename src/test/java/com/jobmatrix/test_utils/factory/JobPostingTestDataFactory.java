@@ -20,6 +20,7 @@ public class JobPostingTestDataFactory {
 
     public static JobPostingDTO createJobPostingDTO(UUID clientId) {
         return JobPostingDTO.builder()
+//                .jobPostingId(1L)
                 .clientId(clientId)
                 .title(TITLE)
                 .description(DESCRIPTION)
