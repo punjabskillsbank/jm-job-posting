@@ -2,10 +2,13 @@ package com.jobmatrix.service;
 
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
+import com.jobmatrix.entity.Client;
+import com.jobmatrix.entity.Client;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
+import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.serviceimpl.JobPostingServiceImpl;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
@@ -38,6 +41,9 @@ public class JobPostingServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private ClientRepository clientRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -206,6 +212,70 @@ public class JobPostingServiceImplTest {
         assertEquals("JobPosting not found at given jobPostingId: " + jobPostingId, exception.getMessage());
         verify(jobPostingRepository, times(1)).findById(jobPostingId);
     }
+
+    @Test
+    void getJobPostingsByClientId_shouldReturnJobPostingsForExistingClient() {
+        UUID clientId = UUID.randomUUID();
+        JobPosting mockJobPosting1 = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        JobPosting mockJobPosting2 = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+
+        // Mock client existence
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(new Client()));
+        // Mock job postings
+        when(jobPostingRepository.findByClientId(clientId)).thenReturn(List.of(mockJobPosting1, mockJobPosting2));
+
+        List<JobPosting> result = jobPostingService.getJobPostingsByClientId(clientId);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(mockJobPosting1.getClientId(), result.get(0).getClientId());
+        assertEquals(mockJobPosting2.getClientId(), result.get(1).getClientId());
+
+        verify(clientRepository, times(1)).findById(clientId);
+        verify(jobPostingRepository, times(1)).findByClientId(clientId);
+    }
+
+    @Test
+    void getJobPostingsByClientId_shouldThrowExceptionForNonExistingClient() {
+        UUID clientId = UUID.randomUUID();
+
+        // Mock client existence
+        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
+
+        JobPostingNotFoundException exception = assertThrows(
+                JobPostingNotFoundException.class,
+                () -> jobPostingService.getJobPostingsByClientId(clientId),
+                "Client not found"
+        );
+
+        assertEquals("Client not found with ID: " + clientId, exception.getMessage());
+        verify(clientRepository, times(1)).findById(clientId);
+        verify(jobPostingRepository, never()).findByClientId(clientId);
+    }
+
+    @Test
+    void getJobPostingsByClientId_shouldThrowExceptionForClientWithNoPostings() {
+        UUID clientId = UUID.randomUUID();
+
+        // Mock client existence
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(new Client()));
+        // Mock empty job postings
+        when(jobPostingRepository.findByClientId(clientId)).thenReturn(List.of());
+
+        JobPostingNotFoundException exception = assertThrows(
+                JobPostingNotFoundException.class,
+                () -> jobPostingService.getJobPostingsByClientId(clientId),
+                "No job postings found"
+        );
+
+        assertEquals("No job postings found for client ID: " + clientId, exception.getMessage());
+        verify(clientRepository, times(1)).findById(clientId);
+        verify(jobPostingRepository, times(1)).findByClientId(clientId);
+    }
+
+    
+
+
 
 
 }
