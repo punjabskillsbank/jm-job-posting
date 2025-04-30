@@ -20,6 +20,7 @@ public class JobPostingTestDataFactory {
 
     public static JobPostingDTO createJobPostingDTO(UUID clientId) {
         return JobPostingDTO.builder()
+                .jobPostingId(1L) // Optional, set default if used
                 .clientId(clientId)
                 .title(TITLE)
                 .description(DESCRIPTION)
@@ -59,4 +60,6 @@ public class JobPostingTestDataFactory {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+
 }

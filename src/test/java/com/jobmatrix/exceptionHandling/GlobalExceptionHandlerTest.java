@@ -26,6 +26,11 @@ class GlobalExceptionHandlerTest {
         public String throwJobPostingNotFoundException() {
             throw new JobPostingNotFoundException(7L);
         }
+
+        @GetMapping("/test-job-posting-not-found-custom")
+        public String throwJobPostingNotFoundExceptionWithCustomMessage() {
+            throw new JobPostingNotFoundException("Custom error message: Job posting not found");
+        }
     }
 
     @BeforeEach
@@ -50,5 +55,14 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("JobPosting not found at given jobPostingId: 7"));
     }
+
+    @Test
+    void handleJobPostingNotFoundWithCustomMessage_ShouldReturnNotFoundWithMessage() throws Exception {
+        mockMvc.perform(get("/test-job-posting-not-found-custom")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Custom error message: Job posting not found"));
+    }
+    
 
 }
