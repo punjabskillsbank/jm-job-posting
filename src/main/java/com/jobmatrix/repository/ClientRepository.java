@@ -10,8 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, UUID> {
-    // Additional query methods can be defined here if needed
-
-    List<JobPosting> findByClientId(UUID clientId);
 
 }
