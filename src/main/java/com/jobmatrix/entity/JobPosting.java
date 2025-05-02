@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,7 +36,8 @@ public class JobPosting {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "budget_type")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "budget_type", columnDefinition = "budget_type")
     private BudgetType budgetType;
 
     @Column(name = "hourly_min_rate")
@@ -47,15 +50,18 @@ public class JobPosting {
     private Integer fixedPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "project_duration")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "project_duration", columnDefinition = "project_duration")
     private ProjectDuration projectDuration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "experience_level")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "experience_level", columnDefinition = "experience_level")
     private ExperienceLevel experienceLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "job_posting_status")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "job_posting_status", columnDefinition = "job_posting_status")
     private JobPostingStatus jobPostingStatus;
 
     @ManyToOne
