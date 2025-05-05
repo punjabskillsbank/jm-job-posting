@@ -37,4 +37,10 @@ public class JobPostingController {
         JobPosting jobPosting = jobPostingService.getJobPostingById(jobPostingId);
         return ResponseEntity.ok(jobPosting);
     }
+
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<JobPosting>> getJobPostingsByClientId(@PathVariable UUID clientId) {
+        List<JobPosting> jobPostings = jobPostingService.getJobPostingsByClientId(clientId);
+        return ResponseEntity.ok(jobPostings);
+    }
 } 
