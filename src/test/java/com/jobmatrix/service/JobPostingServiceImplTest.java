@@ -3,7 +3,7 @@ package com.jobmatrix.service;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
-import com.jobmatrix.entity.Client;
+import com.common.entity.Client;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.JobPostingByClientIdNotFoundException;
