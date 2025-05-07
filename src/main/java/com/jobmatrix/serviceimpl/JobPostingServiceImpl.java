@@ -1,5 +1,6 @@
 package com.jobmatrix.serviceimpl;
 
+import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
@@ -7,6 +8,7 @@ import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
+import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final CategoryRepository categoryRepository;
+    private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -54,5 +57,18 @@ public class JobPostingServiceImpl implements JobPostingService {
         return jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));
     }
+
+    @Override
+    public List<JobPosting> getJobPostingsByClientId(UUID clientId) {
+        // Check if client exists
+        if (clientRepository.findById(clientId).isEmpty()) {
+            throw new ClientNotFoundException(clientId);
+        }
+
+        List<JobPosting> jobPostings = jobPostingRepository.findByClientId(clientId);
+
+        return jobPostings;
+    }
+
 
 }
