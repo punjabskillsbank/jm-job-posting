@@ -50,6 +50,26 @@ public class JobPostingTestDataFactory {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+    public static JobPosting createJobPostingEntity(UUID clientId, Long jobPostingId, String title, String description){
+        return JobPosting.builder()
+                .jobPostingId(jobPostingId)
+                .clientId(clientId)
+                .title(title)
+                .description(description)
+                .budgetType(BUDGET_TYPE)
+                .hourlyMinRate(HOURLY_MIN_RATE)
+                .hourlyMaxRate(HOURLY_MAX_RATE)
+                .fixedPrice(FIXED_PRICE)
+                .projectDuration(PROJECT_DURATION)
+                .experienceLevel(EXPERIENCE_LEVEL)
+                .jobPostingStatus(STATUS)
+                .category(createMockCategory())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
     private static Category createMockCategory() {
         return Category.builder()
                 .categoryId(CATEGORY_ID)

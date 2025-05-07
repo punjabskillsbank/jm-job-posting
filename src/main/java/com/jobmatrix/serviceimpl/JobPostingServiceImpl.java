@@ -6,7 +6,6 @@ import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
-import com.jobmatrix.exceptionHandling.JobPostingByClientIdNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
@@ -67,10 +66,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
 
         List<JobPosting> jobPostings = jobPostingRepository.findByClientId(clientId);
-        // Check if job postings exist for the client
-        if (jobPostings.isEmpty()) {
-            throw new JobPostingByClientIdNotFoundException(clientId);
-        }
+
         return jobPostings;
     }
 

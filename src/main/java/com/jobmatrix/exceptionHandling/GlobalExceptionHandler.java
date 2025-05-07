@@ -25,8 +25,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(JobPostingByClientIdNotFoundException.class)
-    public ResponseEntity<String> handleJobPostingByClientIdNotFoundException(JobPostingByClientIdNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
 }

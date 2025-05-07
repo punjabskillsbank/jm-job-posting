@@ -6,7 +6,6 @@ import com.jobmatrix.entity.Category;
 import com.common.entity.Client;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
-import com.jobmatrix.exceptionHandling.JobPostingByClientIdNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
@@ -19,11 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -254,20 +250,20 @@ public class JobPostingServiceImplTest {
     }
 
     @Test
-    void getJobPostingsByClientId_shouldThrowExceptionForClientWithNoPostings() {
+    void getJobPostingsByClientId_shouldReturnEmptyListWhenNoPostingsExist() {
         UUID clientId = UUID.randomUUID();
         // Mock client existence
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(new Client()));
         // Mock empty job postings
         when(jobPostingRepository.findByClientId(clientId)).thenReturn(List.of());
 
-        JobPostingByClientIdNotFoundException exception = assertThrows(
-                JobPostingByClientIdNotFoundException.class,
-                () -> jobPostingService.getJobPostingsByClientId(clientId),
-                "No job postings found"
-        );
+        // Call the method
+        List<JobPosting> result = jobPostingService.getJobPostingsByClientId(clientId);
 
-        assertEquals("No job postings found for client ID: " + clientId, exception.getMessage());
+        // Assert result is empty
+        assertTrue(result.isEmpty());
+
+        // Verify interactions
         verify(clientRepository, times(1)).findById(clientId);
         verify(jobPostingRepository, times(1)).findByClientId(clientId);
     }
