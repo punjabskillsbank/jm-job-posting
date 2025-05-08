@@ -55,4 +55,8 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));
     }
 
+    @Override
+    public List<Category> getCategories() {
+        return categoryRepository.findAll();
+    }
 }

@@ -50,7 +50,7 @@ public class JobPostingTestDataFactory {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
-    private static Category createMockCategory() {
+    public static Category createMockCategory() {
         return Category.builder()
                 .categoryId(CATEGORY_ID)
                 .category("Sample Category")
