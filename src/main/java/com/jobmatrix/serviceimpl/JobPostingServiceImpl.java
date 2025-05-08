@@ -70,5 +70,8 @@ public class JobPostingServiceImpl implements JobPostingService {
         return jobPostings;
     }
 
-
+    @Override
+    public List<Category> getCategories() {
+        return categoryRepository.findAll();
+    }
 }
