@@ -2,6 +2,7 @@ package com.jobmatrix.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
@@ -100,4 +101,23 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value("Sample Job 2"));
     }
 
+    @Test
+    void testGetCategories() throws Exception {
+        List<Category> mockCategories = List.of(
+                JobPostingTestDataFactory.createMockCategory(3L, "Sample Category", "Sample Speciality"),
+                JobPostingTestDataFactory.createMockCategory(1L, "Test Category", "Test Speciality")
+        );
+
+        Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/categories"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].categoryId").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value("Sample Category"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].speciality").value("Sample Speciality"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].categoryId").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value("Test Category"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].speciality").value("Test Speciality"));
+    }
 }

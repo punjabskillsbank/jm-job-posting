@@ -269,4 +269,18 @@ public class JobPostingServiceImplTest {
     }
 
 
+    @Test
+    void testGetCategories_ShouldReturnListOfCategories() {
+        Category category1 = JobPostingTestDataFactory.createMockCategory(3L, "Sample Category", "Sample Speciality");
+        Category category2 = JobPostingTestDataFactory.createMockCategory(1L, "Test Category", "Test Speciality");
+        List<Category> mockCategories = List.of(category1, category2);
+        when(categoryRepository.findAll()).thenReturn(mockCategories);
+        List<Category> result = jobPostingService.getCategories();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Sample Category", result.get(0).getCategory());
+        assertEquals("Test Speciality", result.get(1).getSpeciality());
+        verify(categoryRepository, times(1)).findAll();
+    }
+
 }

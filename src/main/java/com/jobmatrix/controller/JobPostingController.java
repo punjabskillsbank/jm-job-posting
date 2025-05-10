@@ -1,6 +1,7 @@
 package com.jobmatrix.controller;
 
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,4 +44,11 @@ public class JobPostingController {
         List<JobPosting> jobPostings = jobPostingService.getJobPostingsByClientId(clientId);
         return ResponseEntity.ok(jobPostings);
     }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> getCategories() {
+        List<Category> categories = jobPostingService.getCategories();
+        return ResponseEntity.ok(categories);
+    }
+
 } 
