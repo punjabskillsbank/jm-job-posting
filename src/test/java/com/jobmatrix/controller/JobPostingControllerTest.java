@@ -104,8 +104,8 @@ public class JobPostingControllerTest {
     @Test
     void testGetCategories() throws Exception {
         List<Category> mockCategories = List.of(
-                JobPostingTestDataFactory.createMockCategory(),
-                JobPostingTestDataFactory.createMockCategory()
+                JobPostingTestDataFactory.createMockCategory(3L, "Sample Category", "Sample Speciality"),
+                JobPostingTestDataFactory.createMockCategory(1L, "Test Category", "Test Speciality")
         );
 
         Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);
@@ -113,11 +113,11 @@ public class JobPostingControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/categories"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].categoryId").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].categoryId").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value("Sample Category"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].speciality").value("Sample Speciality"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].categoryId").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value("Sample Category"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].speciality").value("Sample Speciality"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value("Test Category"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].speciality").value("Test Speciality"));
     }
 }

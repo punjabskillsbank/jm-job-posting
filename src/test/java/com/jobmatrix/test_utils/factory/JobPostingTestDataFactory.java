@@ -45,7 +45,7 @@ public class JobPostingTestDataFactory {
                 .projectDuration(PROJECT_DURATION)
                 .experienceLevel(EXPERIENCE_LEVEL)
                 .jobPostingStatus(STATUS)
-                .category(createMockCategory())
+                .category(createMockCategory(2L, "Test Category", "Test Speciality"))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -64,17 +64,17 @@ public class JobPostingTestDataFactory {
                 .projectDuration(PROJECT_DURATION)
                 .experienceLevel(EXPERIENCE_LEVEL)
                 .jobPostingStatus(STATUS)
-                .category(createMockCategory())
+                .category(createMockCategory(5L, "Test Category", "Test Speciality"))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
 
-    public static Category createMockCategory() {
+    public static Category createMockCategory(Long categoryId, String category, String speciality) {
         return Category.builder()
-                .categoryId(CATEGORY_ID)
-                .category("Sample Category")
-                .speciality("Sample Speciality")
+                .categoryId(categoryId)
+                .category(category)
+                .speciality(speciality)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
