@@ -1,10 +1,12 @@
 package com.jobmatrix.controller;
 
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,4 +53,12 @@ public class JobPostingController {
         return ResponseEntity.ok(categories);
     }
 
+    @PatchMapping("/{job_Posting_Id}")
+    public ResponseEntity<JobPosting> updateJobPosting(
+            @PathVariable Long job_Posting_Id,
+            @Valid @RequestBody JobPostingUpdateRequest jobPostingUpdateRequest
+    ){
+        JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_Posting_Id, jobPostingUpdateRequest);
+        return ResponseEntity.ok(updatedJobPosting);
+    }
 } 

@@ -2,6 +2,7 @@ package com.jobmatrix.serviceimpl;
 
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
@@ -73,5 +74,18 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     public List<Category> getCategories() {
         return categoryRepository.findAll();
+    }
+
+    @Transactional
+    @Override
+    public JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest){
+
+        JobPosting tempJobPosting = jobPostingRepository.findById(job_Posting_Id)
+                .orElseThrow(() -> new JobPostingNotFoundException(job_Posting_Id));
+
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.map(jobPostingUpdateRequest, tempJobPosting);
+
+        return jobPostingRepository.save(tempJobPosting);
     }
 }
