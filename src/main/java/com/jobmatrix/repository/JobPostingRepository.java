@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     List<JobPosting> findByJobPostingStatus(JobPostingStatus jobPostingStatus);
     List<JobPosting> findByClientId(UUID clientId);
+    List<JobPosting> findByClientIdAndJobPostingStatus(UUID clientId, JobPostingStatus status);
 } 

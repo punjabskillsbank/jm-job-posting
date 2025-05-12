@@ -3,10 +3,7 @@ package com.jobmatrix.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.Category;
-import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.*;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
 import org.junit.jupiter.api.Test;
@@ -19,8 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @WebMvcTest(JobPostingController.class)
 public class JobPostingControllerTest {
@@ -182,5 +178,53 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
 
         Mockito.verify(jobPostingService).updateJobPosting(Mockito.eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class));
+    }
+
+    @Test
+    void testGetJobPostingsByStatuses() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        String statuses = "DRAFT,OPEN";
+
+        JobPostingDTO draftJobDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
+        JobPostingDTO openJobDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
+        openJobDTO.setTitle("Open Job");
+
+        Map<JobPostingStatus, List<JobPostingDTO>> mockResult = Map.of(
+                JobPostingStatus.DRAFT, List.of(draftJobDTO),
+                JobPostingStatus.OPEN, List.of(openJobDTO)
+        );
+
+        Mockito.when(jobPostingService.getJobPostingsByStatuses(
+                Mockito.eq(clientId),
+                Mockito.argThat(list ->
+                        list.containsAll(Arrays.asList(JobPostingStatus.DRAFT, JobPostingStatus.OPEN))
+                )
+        )).thenReturn(mockResult);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
+                        clientId, statuses))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.DRAFT").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.OPEN").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.DRAFT.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.OPEN.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.DRAFT[0].title").value(draftJobDTO.getTitle()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.OPEN[0].title").value("Open Job"));
+    }
+
+    @Test
+    void testGetJobPostingsByStatuses_EmptyResult() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        String statuses = "DRAFT,OPEN";
+
+        Mockito.when(jobPostingService.getJobPostingsByStatuses(
+                Mockito.eq(clientId),
+                Mockito.anyList()
+        )).thenReturn(new HashMap<>());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
+                        clientId, statuses))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
     }
 }

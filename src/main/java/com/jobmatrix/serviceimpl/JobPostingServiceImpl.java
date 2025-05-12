@@ -17,8 +17,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,26 +79,36 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Transactional
     @Override
     public JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest request) {
-
         JobPosting jobPosting = jobPostingRepository.findById(job_Posting_Id)
                 .orElseThrow(() -> new JobPostingNotFoundException(job_Posting_Id));
-
         modelMapper.getConfiguration().setSkipNullEnabled(true);
-
         // Temporarily exclude category from mapping
         Long categoryId = request.getCategoryId();
         request.setCategoryId(null);
         modelMapper.map(request, jobPosting);
         request.setCategoryId(categoryId);
-
         // Manually handle category if present
         if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new CategoryNotFoundException(categoryId));
             jobPosting.setCategory(category);
         }
-
         return jobPostingRepository.save(jobPosting);
+    }
+
+    @Override
+    public Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList) {
+        Map<JobPostingStatus, List<JobPostingDTO>> result = new HashMap<>();
+        for (JobPostingStatus status : statusList) {
+            List<JobPosting> jobPostings = jobPostingRepository.findByClientIdAndJobPostingStatus(clientId, status);
+            List<JobPostingDTO> dtoList = new ArrayList<>();
+            for (JobPosting jobPosting : jobPostings) {
+                JobPostingDTO jobPostingDTO = modelMapper.map(jobPosting, JobPostingDTO.class);
+                dtoList.add(jobPostingDTO);
+            }
+            result.put(status, dtoList);
+        }
+        return result;
     }
 
 }

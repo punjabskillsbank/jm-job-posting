@@ -4,8 +4,10 @@ import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface JobPostingService {
@@ -15,4 +17,5 @@ public interface JobPostingService {
     List<JobPosting> getJobPostingsByClientId(UUID clientId);
     List<Category> getCategories();
     JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest);
+    Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList);
 } 

@@ -27,6 +27,7 @@ import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -140,7 +141,7 @@ public class JobPostingServiceImplTest {
         List<JobPosting> result = jobPostingService.getOpenJobPostings();
 
         assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertTrue(result.size() == 0);
 
         verify(jobPostingRepository).findByJobPostingStatus(JobPostingStatus.OPEN);
     }
@@ -373,4 +374,74 @@ public class JobPostingServiceImplTest {
         verify(jobPostingRepository, never()).save(any());
     }
 
+    @Test
+    void getJobPostingsByStatuses_Success() {
+        UUID clientId = UUID.randomUUID();
+        List<JobPostingStatus> statusList = List.of(JobPostingStatus.DRAFT, JobPostingStatus.OPEN);
+
+        JobPosting draftPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        draftPosting.setJobPostingStatus(JobPostingStatus.DRAFT);
+
+        JobPosting openPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        openPosting.setJobPostingStatus(JobPostingStatus.OPEN);
+
+        when(jobPostingRepository.findByClientIdAndJobPostingStatus(clientId, JobPostingStatus.DRAFT))
+                .thenReturn(List.of(draftPosting));
+        when(jobPostingRepository.findByClientIdAndJobPostingStatus(clientId, JobPostingStatus.OPEN))
+                .thenReturn(List.of(openPosting));
+
+        JobPostingDTO draftDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
+        JobPostingDTO openDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
+        when(modelMapper.map(draftPosting, JobPostingDTO.class)).thenReturn(draftDTO);
+        when(modelMapper.map(openPosting, JobPostingDTO.class)).thenReturn(openDTO);
+
+        Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(JobPostingStatus.DRAFT));
+        assertTrue(result.containsKey(JobPostingStatus.OPEN));
+        assertEquals(1, result.get(JobPostingStatus.DRAFT).size());
+        assertEquals(1, result.get(JobPostingStatus.OPEN).size());
+
+        verify(jobPostingRepository).findByClientIdAndJobPostingStatus(clientId, JobPostingStatus.DRAFT);
+        verify(jobPostingRepository).findByClientIdAndJobPostingStatus(clientId, JobPostingStatus.OPEN);
+        verify(modelMapper, times(2)).map(any(JobPosting.class), eq(JobPostingDTO.class));
+    }
+
+    @Test
+    void getJobPostingsByStatuses_EmptyResults() {
+        UUID clientId = UUID.randomUUID();
+        List<JobPostingStatus> statusList = List.of(JobPostingStatus.DRAFT, JobPostingStatus.OPEN);
+
+        when(jobPostingRepository.findByClientIdAndJobPostingStatus(eq(clientId), any(JobPostingStatus.class)))
+                .thenReturn(List.of());
+
+        Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(JobPostingStatus.DRAFT));
+        assertTrue(result.containsKey(JobPostingStatus.OPEN));
+        assertTrue(result.get(JobPostingStatus.DRAFT).isEmpty());
+        assertTrue(result.get(JobPostingStatus.OPEN).isEmpty());
+
+        verify(jobPostingRepository, times(2))
+                .findByClientIdAndJobPostingStatus(eq(clientId), any(JobPostingStatus.class));
+        verify(modelMapper, never()).map(any(), any());
+    }
+
+    @Test
+    void getJobPostingsByStatuses_WithEmptyStatusList() {
+        UUID clientId = UUID.randomUUID();
+        List<JobPostingStatus> statusList = List.of();
+
+        Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(jobPostingRepository, never()).findByClientIdAndJobPostingStatus(any(), any());
+        verify(modelMapper, never()).map(any(), any());
+    }
 }

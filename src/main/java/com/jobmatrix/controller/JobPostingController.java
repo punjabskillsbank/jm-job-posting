@@ -4,6 +4,7 @@ import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,8 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/job_postings")
@@ -60,5 +64,18 @@ public class JobPostingController {
     ){
         JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_Posting_Id, jobPostingUpdateRequest);
         return ResponseEntity.ok(updatedJobPosting);
+    }
+
+    @GetMapping("/{clientId}/statuses/{statuses}")
+    public ResponseEntity<Map<JobPostingStatus, List<JobPostingDTO>>> getJobPostingsByStatuses(
+            @PathVariable UUID clientId,
+            @PathVariable String statuses) {
+        // Convert comma separated string to list of JobPostingStatus enum values
+        List<JobPostingStatus> statusList = Arrays.stream(statuses.split(","))
+                .map(String::toUpperCase)
+                .map(JobPostingStatus::valueOf)
+                .collect(Collectors.toList());
+        Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
+        return ResponseEntity.ok(result);
     }
 } 
