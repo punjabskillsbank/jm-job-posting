@@ -2,6 +2,9 @@ package com.jobmatrix.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingUpdateRequest;
+import com.jobmatrix.entity.BudgetType;
+import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.service.JobPostingService;
@@ -119,5 +122,65 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].categoryId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value("Test Category"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].speciality").value("Test Speciality"));
+    }
+
+    @Test
+    void testUpdateJobPostingTest() throws Exception {
+        // Create base entity with initial values
+        JobPosting updatedJobPostingEntity = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+
+        // Update entity with new values
+        updatedJobPostingEntity = updatedJobPostingEntity.toBuilder()
+                .title("Updated Job Title")
+                .description("Updated job description")
+                .budgetType(BudgetType.FIXED)
+                .fixedPrice(5000)
+                .hourlyMinRate(0)
+                .hourlyMaxRate(0)
+                .experienceLevel(ExperienceLevel.BEGINNER)
+                .category(JobPostingTestDataFactory.createMockCategory(3L, "Updated Category", "Updated Speciality"))
+                .build();
+
+        // Create and update the request
+        JobPostingUpdateRequest updateRequest = JobPostingTestDataFactory.createJobPostingUpdateRequest();
+
+        updateRequest = updateRequest.toBuilder()
+                .title("Updated Job Title")
+                .description("Updated job description")
+                .budgetType(BudgetType.FIXED)
+                .fixedPrice(5000)
+                .hourlyMinRate(0)
+                .hourlyMaxRate(0)
+                .experienceLevel(ExperienceLevel.BEGINNER)
+                .categoryId(3L)
+                .build();
+
+        Long jobPostingId = 1L;
+
+        Mockito.when(jobPostingService.updateJobPosting(Mockito.eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class)))
+                .thenReturn(updatedJobPostingEntity);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/job_postings/" + jobPostingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").value(jobPostingId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Updated Job Title"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Updated job description"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.budgetType").value("FIXED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.fixedPrice").value(5000))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.hourlyMinRate").value(0))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.hourlyMaxRate").value(0))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.experienceLevel").value("BEGINNER"))
+                // verify other fields remain unchanged
+                .andExpect(MockMvcResultMatchers.jsonPath("$.projectDuration").value(updatedJobPostingEntity.getProjectDuration().toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingStatus").value(updatedJobPostingEntity.getJobPostingStatus().toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.category.categoryId").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.category.category").value("Updated Category"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.category.speciality").value("Updated Speciality"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
+
+        Mockito.verify(jobPostingService).updateJobPosting(Mockito.eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class));
     }
 }

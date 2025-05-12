@@ -1,6 +1,7 @@
 package com.jobmatrix.test_utils.factory;
 
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.*;
 
 import java.time.LocalDateTime;
@@ -76,6 +77,38 @@ public class JobPostingTestDataFactory {
                 .category(category)
                 .speciality(speciality)
                 .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static JobPostingUpdateRequest createJobPostingUpdateRequest() {
+        return JobPostingUpdateRequest.builder()
+                .title("Updated " + TITLE)
+                .description("Updated " + DESCRIPTION)
+                .budgetType(BUDGET_TYPE)
+                .hourlyMinRate(HOURLY_MIN_RATE + 10)
+                .hourlyMaxRate(HOURLY_MAX_RATE + 10)
+                .projectDuration(PROJECT_DURATION)
+                .experienceLevel(EXPERIENCE_LEVEL)
+                .categoryId(CATEGORY_ID)
+                .build();
+    }
+
+    public static JobPosting createUpdatedJobPostingEntity(Long jobPostingId, UUID clientId, JobPostingUpdateRequest request, Category category, LocalDateTime createdAt) {
+        return JobPosting.builder()
+                .jobPostingId(jobPostingId)
+                .clientId(clientId)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .budgetType(request.getBudgetType())
+                .hourlyMinRate(request.getHourlyMinRate())
+                .hourlyMaxRate(request.getHourlyMaxRate())
+                .fixedPrice(0)
+                .projectDuration(request.getProjectDuration())
+                .experienceLevel(request.getExperienceLevel())
+                .jobPostingStatus(JobPostingStatus.OPEN)
+                .category(category)
+                .createdAt(createdAt)
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
