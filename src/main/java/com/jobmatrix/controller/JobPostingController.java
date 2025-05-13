@@ -53,12 +53,12 @@ public class JobPostingController {
         return ResponseEntity.ok(categories);
     }
 
-    @PatchMapping("/{job_Posting_Id}")
+    @PatchMapping("/{job_posting_id}")
     public ResponseEntity<JobPosting> updateJobPosting(
-            @PathVariable Long job_Posting_Id,
+            @PathVariable Long job_posting_id,
             @Valid @RequestBody JobPostingUpdateRequest jobPostingUpdateRequest
     ){
-        JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_Posting_Id, jobPostingUpdateRequest);
+        JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_posting_id, jobPostingUpdateRequest);
         return ResponseEntity.ok(updatedJobPosting);
     }
 } 

@@ -78,26 +78,25 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Transactional
     @Override
-    public JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest request) {
+    public JobPosting updateJobPosting(Long job_posting_id, JobPostingUpdateRequest request) {
 
-        JobPosting jobPosting = jobPostingRepository.findById(job_Posting_Id)
-                .orElseThrow(() -> new JobPostingNotFoundException(job_Posting_Id));
+        JobPosting jobPosting = jobPostingRepository.findById(job_posting_id)
+                .orElseThrow(() -> new JobPostingNotFoundException(job_posting_id));
 
         modelMapper.getConfiguration().setSkipNullEnabled(true);
 
-        // Temporarily exclude category from mapping
-        Long categoryId = request.getCategoryId();
-        request.setCategoryId(null);
-        modelMapper.map(request, jobPosting);
-        request.setCategoryId(categoryId);
+        if (request.getCategoryId() == null) {
+            modelMapper.map(request, jobPosting);
+        } else {
+            Long categoryId = request.getCategoryId();
+            request.setCategoryId(null); // prevent automatic mapping of categoryId
+            modelMapper.map(request, jobPosting);
+            request.setCategoryId(categoryId); // restore it
 
-        // Manually handle category if present
-        if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new CategoryNotFoundException(categoryId));
             jobPosting.setCategory(category);
         }
-
         return jobPostingRepository.save(jobPosting);
     }
 
