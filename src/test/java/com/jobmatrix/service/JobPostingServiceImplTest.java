@@ -2,10 +2,14 @@ package com.jobmatrix.service;
 
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingUpdateRequest;
+import com.jobmatrix.entity.BudgetType;
+import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.entity.Category;
 import com.common.entity.Client;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
+import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
@@ -281,6 +285,92 @@ public class JobPostingServiceImplTest {
         assertEquals("Sample Category", result.get(0).getCategory());
         assertEquals("Test Speciality", result.get(1).getSpeciality());
         verify(categoryRepository, times(1)).findAll();
+    }
+
+    @Test
+    void updateJobPosting_shouldUpdateAndReturnJobPosting() {
+        Long jobPostingId = 1L;
+        UUID clientId = UUID.randomUUID();
+        Long categoryId = 1L;
+
+        JobPosting existingJobPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        JobPostingUpdateRequest updateRequest = JobPostingTestDataFactory.createJobPostingUpdateRequest();
+        Category updatedCategory = JobPostingTestDataFactory.createMockCategory(categoryId, "Updated Category", "Updated Speciality");
+
+        JobPosting updatedJobPosting = JobPostingTestDataFactory.createUpdatedJobPostingEntity(
+                jobPostingId, clientId, updateRequest, updatedCategory, existingJobPosting.getCreatedAt());
+
+        when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.of(existingJobPosting));
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(updatedCategory));
+
+        org.modelmapper.config.Configuration mockConfig = mock(org.modelmapper.config.Configuration.class);
+        when(modelMapper.getConfiguration()).thenReturn(mockConfig);
+
+        doAnswer(invocation -> {
+            JobPostingUpdateRequest src = invocation.getArgument(0);
+            JobPosting dest = invocation.getArgument(1);
+            dest.setTitle(src.getTitle());
+            dest.setDescription(src.getDescription());
+            dest.setHourlyMinRate(src.getHourlyMinRate());
+            dest.setHourlyMaxRate(src.getHourlyMaxRate());
+            dest.setProjectDuration(src.getProjectDuration());
+            dest.setExperienceLevel(src.getExperienceLevel());
+            return null;
+        }).when(modelMapper).map(updateRequest, existingJobPosting);
+
+        when(jobPostingRepository.save(existingJobPosting)).thenReturn(updatedJobPosting);
+
+        JobPosting result = jobPostingService.updateJobPosting(jobPostingId, updateRequest);
+
+        assertNotNull(result);
+        assertEquals(updateRequest.getTitle(), result.getTitle());
+        assertEquals(updateRequest.getDescription(), result.getDescription());
+        assertEquals(updatedCategory, result.getCategory());
+
+        verify(jobPostingRepository, times(1)).findById(jobPostingId);
+        verify(modelMapper, times(1)).getConfiguration();
+        verify(mockConfig, times(1)).setSkipNullEnabled(true);
+        verify(modelMapper, times(1)).map(updateRequest, existingJobPosting);
+        verify(categoryRepository, times(1)).findById(categoryId);
+        verify(jobPostingRepository, times(1)).save(existingJobPosting);
+    }
+
+    @Test
+    void updateJobPosting_shouldThrowException_whenJobPostingNotFound() {
+        Long jobPostingId = 99L;
+        JobPostingUpdateRequest updateRequest = JobPostingTestDataFactory.createJobPostingUpdateRequest();
+
+        when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.empty());
+
+        assertThrows(JobPostingNotFoundException.class,
+                () -> jobPostingService.updateJobPosting(jobPostingId, updateRequest));
+
+        verify(jobPostingRepository, times(1)).findById(jobPostingId);
+        verify(modelMapper, never()).map(any(), any());
+        verify(jobPostingRepository, never()).save(any());
+    }
+
+    @Test
+    void updateJobPosting_shouldThrowException_whenCategoryNotFound() {
+        Long jobPostingId = 1L;
+        UUID clientId = UUID.randomUUID();
+        JobPosting existingJobPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        JobPostingUpdateRequest updateRequest = JobPostingTestDataFactory.createJobPostingUpdateRequest();
+
+        when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.of(existingJobPosting));
+        when(categoryRepository.findById(updateRequest.getCategoryId())).thenReturn(Optional.empty());
+
+        org.modelmapper.config.Configuration mockConfig = mock(org.modelmapper.config.Configuration.class);
+        when(modelMapper.getConfiguration()).thenReturn(mockConfig);
+
+        doAnswer(invocation -> null).when(modelMapper).map(updateRequest, existingJobPosting);
+
+        assertThrows(CategoryNotFoundException.class,
+                () -> jobPostingService.updateJobPosting(jobPostingId, updateRequest));
+
+        verify(jobPostingRepository, times(1)).findById(jobPostingId);
+        verify(categoryRepository, times(1)).findById(updateRequest.getCategoryId());
+        verify(jobPostingRepository, never()).save(any());
     }
 
 }
