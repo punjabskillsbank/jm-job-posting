@@ -1,5 +1,6 @@
 package com.jobmatrix.controller;
 
+import com.common.utility.StringToList;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
@@ -70,12 +71,10 @@ public class JobPostingController {
     public ResponseEntity<Map<JobPostingStatus, List<JobPostingDTO>>> getJobPostingsByStatuses(
             @PathVariable UUID clientId,
             @PathVariable String statuses) {
-        // Convert comma separated string to list of JobPostingStatus enum values
-        List<JobPostingStatus> statusList = Arrays.stream(statuses.split(","))
-                .map(String::toUpperCase)
-                .map(JobPostingStatus::valueOf)
-                .collect(Collectors.toList());
+
+        List<JobPostingStatus> statusList = StringToList.convertToEnumList(statuses, JobPostingStatus.class);
         Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
         return ResponseEntity.ok(result);
     }
+
 } 
