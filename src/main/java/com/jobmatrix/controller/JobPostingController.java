@@ -1,6 +1,6 @@
 package com.jobmatrix.controller;
 
-import com.common.utility.StringToList;
+import com.common.util.EnumUtils;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
@@ -14,11 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/job_postings")
@@ -72,7 +70,7 @@ public class JobPostingController {
             @PathVariable UUID clientId,
             @PathVariable String statuses) {
 
-        List<JobPostingStatus> statusList = StringToList.convertToEnumList(statuses, JobPostingStatus.class);
+        List<JobPostingStatus> statusList = EnumUtils.parseEnumList(statuses, JobPostingStatus.class);
         Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
         return ResponseEntity.ok(result);
     }

@@ -227,4 +227,29 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
     }
+
+    @Test
+    void testGetJobPostingsByStatuses_EmptyStatuses() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        String statuses = " ";
+        Mockito.when(jobPostingService.getJobPostingsByStatuses(
+                Mockito.eq(clientId),
+                Mockito.eq(Collections.emptyList())
+        )).thenReturn(Collections.emptyMap());
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
+                        clientId, statuses))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json("{}"));
+    }
+
+    @Test
+    void testGetJobPostingsByStatuses_InvalidEnumValue() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        String statuses = "DRAFT,INVALID_STATUS";
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
+                        clientId, statuses))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string("Invalid value 'INVALID_STATUS' for enum: JobPostingStatus"));
+    }
 }
