@@ -1,9 +1,11 @@
 package com.jobmatrix.controller;
 
+import com.common.util.EnumUtils;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -61,4 +64,15 @@ public class JobPostingController {
         JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_posting_id, jobPostingUpdateRequest);
         return ResponseEntity.ok(updatedJobPosting);
     }
+
+    @GetMapping("/{clientId}/statuses/{statuses}")
+    public ResponseEntity<Map<JobPostingStatus, List<JobPostingDTO>>> getJobPostingsByStatuses(
+            @PathVariable UUID clientId,
+            @PathVariable String statuses) {
+
+        List<JobPostingStatus> statusList = EnumUtils.parseEnumList(statuses, JobPostingStatus.class);
+        Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
+        return ResponseEntity.ok(result);
+    }
+
 } 

@@ -1,6 +1,7 @@
 package com.jobmatrix.exceptionHandling;
 
 import com.common.exceptionHandling.ClientNotFoundException;
+import com.common.exceptionHandling.InvalidEnumValueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,4 +26,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(InvalidEnumValueException.class)
+    public ResponseEntity<String> handleInvalidEnumValueException(InvalidEnumValueException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

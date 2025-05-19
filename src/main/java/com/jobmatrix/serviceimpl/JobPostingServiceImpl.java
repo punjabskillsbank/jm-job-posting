@@ -17,8 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -100,4 +99,18 @@ public class JobPostingServiceImpl implements JobPostingService {
         return jobPostingRepository.save(jobPosting);
     }
 
+    @Override
+    public Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList) {
+        Map<JobPostingStatus, List<JobPostingDTO>> result = new HashMap<>();
+        for (JobPostingStatus status : statusList) {
+            List<JobPosting> jobPostings = jobPostingRepository.findByClientIdAndJobPostingStatus(clientId, status);
+            List<JobPostingDTO> dtoList = new ArrayList<>();
+            for (JobPosting jobPosting : jobPostings) {
+                JobPostingDTO jobPostingDTO = modelMapper.map(jobPosting, JobPostingDTO.class);
+                dtoList.add(jobPostingDTO);
+            }
+            result.put(status, dtoList);
+        }
+        return result;
+    }
 }
