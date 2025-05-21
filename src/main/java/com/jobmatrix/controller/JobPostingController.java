@@ -3,7 +3,6 @@ package com.jobmatrix.controller;
 import com.common.util.EnumUtils;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
@@ -51,9 +50,9 @@ public class JobPostingController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getCategories() {
-        List<Category> categories = jobPostingService.getCategories();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<Map<String, List<String>>> getCategories() {
+        Map<String, List<String>> groupedCategories = jobPostingService.getCategories();
+        return ResponseEntity.ok(groupedCategories);
     }
 
     @PatchMapping("/{job_posting_id}")

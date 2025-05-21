@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +72,14 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public List<Category> getCategories() {
-        return categoryRepository.findAll();
+    public Map<String, List<String>> getCategories() {
+        List<Category> categories = categoryRepository.findAll();
+
+        return categories.stream()
+                .collect(Collectors.groupingBy(
+                        Category::getCategory,
+                        Collectors.mapping(Category::getSpeciality, Collectors.toList())
+                ));
     }
 
     @Transactional
