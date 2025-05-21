@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/job_postings")
@@ -51,9 +52,16 @@ public class JobPostingController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getCategories() {
+    public ResponseEntity<Map<String, List<String>>> getCategories() {
         List<Category> categories = jobPostingService.getCategories();
-        return ResponseEntity.ok(categories);
+
+        Map<String, List<String>> grouped = categories.stream()
+                .collect(Collectors.groupingBy(
+                        Category::getCategory,
+                        Collectors.mapping(Category::getSpeciality, Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(grouped);
     }
 
     @PatchMapping("/{job_posting_id}")

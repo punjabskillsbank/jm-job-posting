@@ -6,6 +6,7 @@ import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.*;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.*;
+
+import static org.hamcrest.Matchers.is;
 
 @WebMvcTest(JobPostingController.class)
 public class JobPostingControllerTest {
@@ -102,23 +105,27 @@ public class JobPostingControllerTest {
 
     @Test
     void testGetCategories() throws Exception {
+        // Given
         List<Category> mockCategories = List.of(
-                JobPostingTestDataFactory.createMockCategory(3L, "Sample Category", "Sample Speciality"),
-                JobPostingTestDataFactory.createMockCategory(1L, "Test Category", "Test Speciality")
+            JobPostingTestDataFactory.createMockCategory(1L, "Technology", "Software Development"),
+            JobPostingTestDataFactory.createMockCategory(2L, "Technology", "DevOps"),
+            JobPostingTestDataFactory.createMockCategory(3L, "Design", "UI/UX"),
+            JobPostingTestDataFactory.createMockCategory(4L, "Design", "Graphic Design")
         );
 
         Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);
 
+        // When
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/categories"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].categoryId").value(3))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value("Sample Category"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].speciality").value("Sample Speciality"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].categoryId").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value("Test Category"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].speciality").value("Test Speciality"));
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Technology.length()", is(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Technology[0]", is("Software Development")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Technology[1]", is("DevOps")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Design.length()", is(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Design[0]", is("UI/UX")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Design[1]", is("Graphic Design")));
     }
+
 
     @Test
     void testUpdateJobPostingTest() throws Exception {
