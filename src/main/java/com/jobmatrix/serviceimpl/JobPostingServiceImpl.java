@@ -101,6 +101,9 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Override
     public Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList) {
+        if (clientRepository.findById(clientId).isEmpty()) {
+            throw new ClientNotFoundException(clientId);
+        }
         Map<JobPostingStatus, List<JobPostingDTO>> result = new HashMap<>();
         for (JobPostingStatus status : statusList) {
             List<JobPosting> jobPostings = jobPostingRepository.findByClientIdAndJobPostingStatus(clientId, status);

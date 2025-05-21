@@ -379,6 +379,8 @@ public class JobPostingServiceImplTest {
         UUID clientId = UUID.randomUUID();
         List<JobPostingStatus> statusList = List.of(JobPostingStatus.DRAFT, JobPostingStatus.OPEN);
 
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(mock(Client.class)));
+
         JobPosting draftPosting = JobPostingTestDataFactory.createJobPostingEntity(clientId);
         draftPosting.setJobPostingStatus(JobPostingStatus.DRAFT);
 
@@ -414,6 +416,8 @@ public class JobPostingServiceImplTest {
         UUID clientId = UUID.randomUUID();
         List<JobPostingStatus> statusList = List.of(JobPostingStatus.DRAFT, JobPostingStatus.OPEN);
 
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(mock(Client.class)));
+
         when(jobPostingRepository.findByClientIdAndJobPostingStatus(eq(clientId), any(JobPostingStatus.class)))
                 .thenReturn(List.of());
 
@@ -436,6 +440,8 @@ public class JobPostingServiceImplTest {
         UUID clientId = UUID.randomUUID();
         List<JobPostingStatus> statusList = List.of();
 
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(mock(Client.class)));
+
         Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
 
         assertNotNull(result);
@@ -443,5 +449,20 @@ public class JobPostingServiceImplTest {
 
         verify(jobPostingRepository, never()).findByClientIdAndJobPostingStatus(any(), any());
         verify(modelMapper, never()).map(any(), any());
+    }
+
+    @Test
+    void getJobPostingsByStatuses_shouldThrowClientNotFoundException() {
+        UUID clientId = UUID.randomUUID();
+        List<JobPostingStatus> statuses = List.of(JobPostingStatus.IN_PROGRESS);
+
+        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
+
+        ClientNotFoundException exception = assertThrows(
+                ClientNotFoundException.class,
+                () -> jobPostingService.getJobPostingsByStatuses(clientId, statuses)
+        );
+        assertEquals("Client not found with ID: " + clientId, exception.getMessage());
+        verify(clientRepository, times(1)).findById(clientId);
     }
 }
