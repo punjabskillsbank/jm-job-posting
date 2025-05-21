@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -275,16 +276,24 @@ public class JobPostingServiceImplTest {
 
 
     @Test
-    void testGetCategories_ShouldReturnListOfCategories() {
+    void testGetCategories_ShouldReturnMapOfCategories() {
         Category category1 = JobPostingTestDataFactory.createMockCategory(3L, "Sample Category", "Sample Speciality");
         Category category2 = JobPostingTestDataFactory.createMockCategory(1L, "Test Category", "Test Speciality");
         List<Category> mockCategories = List.of(category1, category2);
+        Map<String, List<String>> groupedCategories = mockCategories.stream()
+            .collect(Collectors.groupingBy(
+                Category::getCategory,
+                Collectors.mapping(Category::getSpeciality, Collectors.toList())
+            ));
         when(categoryRepository.findAll()).thenReturn(mockCategories);
-        List<Category> result = jobPostingService.getCategories();
+        
+        Map<String, List<String>> result = jobPostingService.getCategories();
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals("Sample Category", result.get(0).getCategory());
-        assertEquals("Test Speciality", result.get(1).getSpeciality());
+        assertTrue(result.containsKey("Sample Category"));
+        assertTrue(result.containsKey("Test Category"));
+        assertEquals(List.of("Sample Speciality"), result.get("Sample Category"));
+        assertEquals(List.of("Test Speciality"), result.get("Test Category"));
         verify(categoryRepository, times(1)).findAll();
     }
 

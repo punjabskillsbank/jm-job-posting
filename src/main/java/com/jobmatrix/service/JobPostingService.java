@@ -15,7 +15,7 @@ public interface JobPostingService {
     List<JobPosting> getOpenJobPostings();
     JobPosting getJobPostingById(Long jobPostingId);
     List<JobPosting> getJobPostingsByClientId(UUID clientId);
-    List<Category> getCategories();
+    Map<String, List<String>> getCategories();
     JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest);
     Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList);
 } 

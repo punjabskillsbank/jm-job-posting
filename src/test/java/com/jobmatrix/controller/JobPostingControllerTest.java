@@ -3,7 +3,10 @@ package com.jobmatrix.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.*;
+import com.jobmatrix.entity.BudgetType;
+import com.jobmatrix.entity.ExperienceLevel;
+import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
 import org.hamcrest.Matchers;
@@ -16,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import java.util.stream.Collectors;
 
 import java.util.*;
 
@@ -106,11 +110,9 @@ public class JobPostingControllerTest {
     @Test
     void testGetCategories() throws Exception {
         // Given
-        List<Category> mockCategories = List.of(
-            JobPostingTestDataFactory.createMockCategory(1L, "Technology", "Software Development"),
-            JobPostingTestDataFactory.createMockCategory(2L, "Technology", "DevOps"),
-            JobPostingTestDataFactory.createMockCategory(3L, "Design", "UI/UX"),
-            JobPostingTestDataFactory.createMockCategory(4L, "Design", "Graphic Design")
+        Map<String, List<String>> mockCategories = Map.of(
+            "Technology", List.of("Software Development", "DevOps"),
+            "Design", List.of("UI/UX", "Graphic Design")
         );
 
         Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);

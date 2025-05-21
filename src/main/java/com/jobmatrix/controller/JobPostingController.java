@@ -53,15 +53,8 @@ public class JobPostingController {
 
     @GetMapping("/categories")
     public ResponseEntity<Map<String, List<String>>> getCategories() {
-        List<Category> categories = jobPostingService.getCategories();
-
-        Map<String, List<String>> grouped = categories.stream()
-                .collect(Collectors.groupingBy(
-                        Category::getCategory,
-                        Collectors.mapping(Category::getSpeciality, Collectors.toList())
-                ));
-
-        return ResponseEntity.ok(grouped);
+        Map<String, List<String>> groupedCategories = jobPostingService.getCategories();
+        return ResponseEntity.ok(groupedCategories);
     }
 
     @PatchMapping("/{job_posting_id}")
