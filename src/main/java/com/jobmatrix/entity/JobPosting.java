@@ -6,12 +6,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
-
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -67,6 +66,14 @@ public class JobPosting {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToMany
+    @JoinTable(
+            name = "job_postings_skills",
+            joinColumns = @JoinColumn(name = "job_posting_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

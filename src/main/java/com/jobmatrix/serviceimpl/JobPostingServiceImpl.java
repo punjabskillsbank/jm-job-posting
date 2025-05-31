@@ -6,17 +6,19 @@ import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
+import com.jobmatrix.entity.Skill;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
+import com.jobmatrix.repository.SkillRepository;
 import com.jobmatrix.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.HashSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     private final CategoryRepository categoryRepository;
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+    private final SkillRepository skillRepository;
+
 
     @Override
     @Transactional
@@ -42,6 +46,12 @@ public class JobPostingServiceImpl implements JobPostingService {
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
         jobPosting.setCategory(category);
+        // Fetch skills and set it
+        List<Skill> skills = skillRepository.findAllById(jobPostingDTO.getSkillId());
+        if (skills.isEmpty()) {
+            throw new IllegalArgumentException("No valid skills provided for the job posting.");
+        }
+        jobPosting.setSkills(new HashSet<>(skills));
         // Save and return
         return jobPostingRepository.save(jobPosting);
     }

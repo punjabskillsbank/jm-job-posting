@@ -6,6 +6,8 @@ import com.jobmatrix.entity.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import java.util.List;
+
 
 import java.util.UUID;
 
@@ -44,4 +46,8 @@ public class JobPostingDTO {
 
     @NotNull(message = "category_id cannot be null.")
     private Long categoryId;
+
+    @NotNull(message = "At least one skill ID must be provided.")
+    private List<Long> skillId;
+
 }
