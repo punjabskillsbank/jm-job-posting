@@ -3,16 +3,13 @@ package com.jobmatrix.service;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.Category;
+import com.jobmatrix.entity.*;
 import com.common.entity.Client;
-import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
+import com.jobmatrix.repository.SkillRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.serviceimpl.JobPostingServiceImpl;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
@@ -26,10 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +32,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JobPostingServiceImplTest {
+
+    @Mock
+    private SkillRepository skillRepository;
+
 
     @Mock
     private JobPostingRepository jobPostingRepository;
@@ -79,7 +77,14 @@ public class JobPostingServiceImplTest {
         jobPosting.setHourlyMaxRate(jobPostingDTO.getHourlyMaxRate());
         jobPosting.setProjectDuration(jobPostingDTO.getProjectDuration());
         jobPosting.setExperienceLevel(jobPostingDTO.getExperienceLevel());
+        List<Long> skillIds = List.of(101L, 102L);
+        jobPostingDTO.setSkillIds(skillIds);
+        Skill skill1 = new Skill();
+        skill1.setSkillId(101L);
+        Skill skill2 = new Skill();
+        skill2.setSkillId(102L);
 
+        when(skillRepository.findAllById(skillIds)).thenReturn(List.of(skill1, skill2));
         when(categoryRepository.findById(jobPostingDTO.getCategoryId())).thenReturn(Optional.of(category));
         when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
         when(jobPostingRepository.save(any(JobPosting.class))).thenAnswer(invocation -> {
@@ -103,11 +108,13 @@ public class JobPostingServiceImplTest {
         assertEquals(jobPostingDTO.getProjectDuration(), result.getProjectDuration());
         assertEquals(jobPostingDTO.getExperienceLevel(), result.getExperienceLevel());
         assertEquals(JobPostingStatus.DRAFT, result.getJobPostingStatus());
+        assertEquals(Set.of(skill1, skill2), result.getSkills());
         assertEquals(category, result.getCategory());
         assertNotNull(result.getCreatedAt());
         assertNotNull(result.getUpdatedAt());
 
         // Verify interactions
+        verify(skillRepository, times(1)).findAllById(skillIds);
         verify(categoryRepository, times(1)).findById(jobPostingDTO.getCategoryId());
         verify(jobPostingRepository, times(1)).save(any(JobPosting.class));
         verify(modelMapper, times(1)).map(jobPostingDTO, JobPosting.class);

@@ -47,7 +47,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
         jobPosting.setCategory(category);
         // Fetch skills and set it
-        List<Skill> skills = skillRepository.findAllById(jobPostingDTO.getSkillId());
+        List<Skill> skills = skillRepository.findAllById(jobPostingDTO.getSkillIds());
         if (skills.isEmpty()) {
             throw new IllegalArgumentException("No valid skills provided for the job posting.");
         }
