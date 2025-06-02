@@ -36,8 +36,10 @@ public class JobPostingServiceImpl implements JobPostingService {
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
         // Ensure it's treated as a new entity
         jobPosting.setJobPostingId(null);
-        // Set default job posting status
-        jobPosting.setJobPostingStatus(JobPostingStatus.DRAFT);
+        // Set default job posting status if it is null
+        if (jobPostingDTO.getJobPostingStatus() == null) {
+            jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
+        }
         // Fetch category and set it
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
