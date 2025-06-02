@@ -2,6 +2,7 @@ package com.jobmatrix.dto;
 
 import com.jobmatrix.entity.BudgetType;
 import com.jobmatrix.entity.ExperienceLevel;
+import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.entity.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -44,4 +45,6 @@ public class JobPostingDTO {
 
     @NotNull(message = "category_id cannot be null.")
     private Long categoryId;
+
+    private JobPostingStatus jobPostingStatus;
 }
