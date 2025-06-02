@@ -48,6 +48,9 @@ public class JobPostingDTO {
     @NotNull(message = "category_id cannot be null.")
     private Long categoryId;
 
+
+    private JobPostingStatus jobPostingStatus;
+
     @NotNull(message = "At least one skill ID must be provided.")
     private List<Long> skillIds;
 
