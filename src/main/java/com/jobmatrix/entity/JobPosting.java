@@ -1,5 +1,8 @@
 package com.jobmatrix.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -10,6 +13,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -68,12 +72,27 @@ public class JobPosting {
     private Category category;
 
     @ManyToMany
+
     @JoinTable(
             name = "job_postings_skills",
             joinColumns = @JoinColumn(name = "job_posting_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<Skill> skills;
+    @JsonManagedReference
+    private Set<Skill> skills = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof JobPosting)) return false;
+        JobPosting other = (JobPosting) o;
+        return jobPostingId != null && jobPostingId.equals(other.getJobPostingId());
+    }
+
+    @Override
+    public int hashCode() {
+        return jobPostingId != null ? jobPostingId.hashCode() : 0;
+    }
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

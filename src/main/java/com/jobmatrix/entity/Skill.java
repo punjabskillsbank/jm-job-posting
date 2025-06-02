@@ -1,5 +1,8 @@
 package com.jobmatrix.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +34,20 @@ public class Skill {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "skills", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
     private Set<JobPosting> jobPostings = new HashSet<>();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Skill)) return false;
+        Skill other = (Skill) o;
+        return skillId != null && skillId.equals(other.getSkillId());
+    }
+
+    @Override
+    public int hashCode() {
+        return skillId != null ? skillId.hashCode() : 0;
+    }
+
 }
