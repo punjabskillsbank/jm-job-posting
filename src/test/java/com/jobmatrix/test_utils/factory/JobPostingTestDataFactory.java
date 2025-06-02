@@ -30,6 +30,7 @@ public class JobPostingTestDataFactory {
                 .projectDuration(PROJECT_DURATION)
                 .experienceLevel(EXPERIENCE_LEVEL)
                 .categoryId(CATEGORY_ID)
+                .jobPostingStatus(STATUS)
                 .build();
     }
 

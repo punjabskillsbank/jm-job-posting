@@ -2,6 +2,7 @@ package com.jobmatrix.dto;
 
 import com.jobmatrix.entity.BudgetType;
 import com.jobmatrix.entity.ExperienceLevel;
+import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.entity.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -50,4 +51,6 @@ public class JobPostingDTO {
     @NotNull(message = "At least one skill ID must be provided.")
     private List<Long> skillIds;
 
+
+    private JobPostingStatus jobPostingStatus;
 }
