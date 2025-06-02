@@ -52,7 +52,7 @@ public class JobPostingDTO {
     private JobPostingStatus jobPostingStatus;
 
     @NotNull(message = "At least one skill ID must be provided.")
-    private List<Long> skillId;
+    private List<Long> skillIds;
 
 
     private JobPostingStatus jobPostingStatus;
