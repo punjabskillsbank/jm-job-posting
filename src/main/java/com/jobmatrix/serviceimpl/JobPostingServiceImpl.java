@@ -36,11 +36,8 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     @Transactional
     public JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO) {
-        // 1. Fetch category
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        // 2. Fetch Skill entities based on skillIds from input DTO
         Set<Skill> skills = new HashSet<>();
         if (jobPostingDTO.getSkillIds() != null && !jobPostingDTO.getSkillIds().isEmpty()) {
             List<Skill> foundSkills = skillRepository.findAllById(jobPostingDTO.getSkillIds());
@@ -49,26 +46,15 @@ public class JobPostingServiceImpl implements JobPostingService {
             }
             skills.addAll(foundSkills);
         }
-
-        // 3. Map DTO to entity
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
-
-        // 4. Set category and skills on entity
         jobPosting.setCategory(category);
         jobPosting.setSkills(skills);
-
-        // 5. Set default status if null
         if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
-
-        // 6. Save entity
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
 
-        // 7. Map saved entity back to DTO
         JobPostingDTO resultDTO = modelMapper.map(savedJobPosting, JobPostingDTO.class);
-
-        // 8. Populate full SkillDTOs in resultDTO.skills manually if ModelMapper doesn't do it
         if (savedJobPosting.getSkills() != null) {
             Set<SkillDTO> skillDTOs = savedJobPosting.getSkills().stream().map(skill -> {
                 SkillDTO skillDTO = new SkillDTO();
@@ -78,14 +64,9 @@ public class JobPostingServiceImpl implements JobPostingService {
             }).collect(Collectors.toSet());
             resultDTO.setSkills(skillDTOs);
         }
-
-        // 9. Clear skillIds in output (optional)
         resultDTO.setSkillIds(null);
-
         return resultDTO;
     }
-
-
 
     @Override
     public List<JobPosting> getOpenJobPostings() {

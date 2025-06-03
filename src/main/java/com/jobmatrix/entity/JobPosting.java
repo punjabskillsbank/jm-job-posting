@@ -21,14 +21,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class JobPosting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_posting_id")
-    @EqualsAndHashCode.Include
     private Long jobPostingId;
 
     @Column(name = "client_id", nullable = false)
