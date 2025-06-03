@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface JobPostingService {
-    JobPosting createJobPosting(JobPostingDTO jobPostingDTO);
+    JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO);
     List<JobPosting> getOpenJobPostings();
     JobPosting getJobPostingById(Long jobPostingId);
     List<JobPosting> getJobPostingsByClientId(UUID clientId);

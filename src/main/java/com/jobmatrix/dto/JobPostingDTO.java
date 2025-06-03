@@ -1,19 +1,21 @@
 package com.jobmatrix.dto;
 
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.JobPostingStatus;
-import com.jobmatrix.entity.ProjectDuration;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.jobmatrix.entity.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Builder(toBuilder = true)
 public class JobPostingDTO {
 
@@ -44,7 +46,17 @@ public class JobPostingDTO {
     private ExperienceLevel experienceLevel;
 
     @NotNull(message = "category_id cannot be null.")
+    private CategoryDTO category;
     private Long categoryId;
 
+    @NotNull(message = "At least one skill ID must be provided.")
+    private Set<SkillDTO> skills;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Set<Long> skillIds;
+
     private JobPostingStatus jobPostingStatus;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

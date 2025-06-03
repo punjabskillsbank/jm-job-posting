@@ -26,9 +26,9 @@ public class JobPostingController {
     private JobPostingService jobPostingService;
 
     @PostMapping("/create_job_posting")
-    public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
-        JobPosting createdJobPosting = jobPostingService.createJobPosting(jobPostingDTO);
-        return new ResponseEntity<>(createdJobPosting, HttpStatus.CREATED);
+    public ResponseEntity<JobPostingDTO> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
+        JobPostingDTO createdJobPostingDTO = jobPostingService.createJobPosting(jobPostingDTO);
+        return new ResponseEntity<>(createdJobPostingDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/open_job_postings")
