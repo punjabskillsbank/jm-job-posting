@@ -32,6 +32,6 @@ public class Skill {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "skills", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "skills", fetch = FetchType.LAZY)
     private Set<JobPosting> jobPostings = new HashSet<>();
 }

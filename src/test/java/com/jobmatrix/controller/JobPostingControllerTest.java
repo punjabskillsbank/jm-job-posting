@@ -39,14 +39,10 @@ public class JobPostingControllerTest {
     @Test
     void testCreateJobPosting() throws Exception {
         UUID clientId = UUID.randomUUID();
-
         JobPostingDTO jobPostingDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
-
         // Prepare mock DTO with non-null ID and timestamps
         JobPostingDTO mockJobPostingDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
         mockJobPostingDTO.setJobPostingId(1L); // Set some non-null ID
-        mockJobPostingDTO.setCreatedAt(LocalDateTime.now());
-        mockJobPostingDTO.setUpdatedAt(LocalDateTime.now());
 
         Mockito.when(jobPostingService.createJobPosting(Mockito.any(JobPostingDTO.class)))
                 .thenReturn(mockJobPostingDTO);
@@ -55,9 +51,7 @@ public class JobPostingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jobPostingDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").exists());
     }
 
     @Test

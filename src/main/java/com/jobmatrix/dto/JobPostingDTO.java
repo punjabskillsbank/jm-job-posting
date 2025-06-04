@@ -6,6 +6,7 @@ import com.jobmatrix.entity.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -46,17 +47,11 @@ public class JobPostingDTO {
     private ExperienceLevel experienceLevel;
 
     @NotNull(message = "category_id cannot be null.")
-    private CategoryDTO category;
     private Long categoryId;
 
     @NotNull(message = "At least one skill ID must be provided.")
-    private Set<SkillDTO> skills;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<Long> skillIds;
 
     private JobPostingStatus jobPostingStatus;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 }
