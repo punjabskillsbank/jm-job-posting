@@ -3,6 +3,9 @@ package com.jobmatrix.service;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
+import com.common.dto.CategoryDTO;
+import com.common.dto.SkillDTO;
+
 import com.jobmatrix.entity.*;
 import com.common.entity.Client;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
@@ -59,15 +62,26 @@ public class JobPostingServiceImplTest {
         jobPostingDTO = JobPostingTestDataFactory.createJobPostingDTO(clientId);
 
         category = new Category();
-        category.setCategoryId(jobPostingDTO.getCategoryId());
+        category.setCategoryId(1L); // Provide a test ID
         category.setCategory("Test Category");
         category.setSpeciality("Test Speciality");
     }
 
     @Test
+
     public void testCreateJobPosting_Success() {
         // Prepare input DTO
-        Set<Long> skillIds = Set.of(101L, 102L);
+        Set<SkillDTO> skillDTOs = Set.of(
+                SkillDTO.builder().skillId(101L).skill("Java").build(),
+                SkillDTO.builder().skillId(102L).skill("Spring Boot").build()
+        );
+
+        CategoryDTO categoryDTO = CategoryDTO.builder()
+                .categoryId(1L)
+                .category("Development")
+                .speciality("Backend")
+                .build();
+
         jobPostingDTO.setTitle("Java Developer");
         jobPostingDTO.setDescription("Experienced dev needed");
         jobPostingDTO.setBudgetType(BudgetType.HOURLY);
@@ -75,10 +89,10 @@ public class JobPostingServiceImplTest {
         jobPostingDTO.setHourlyMaxRate(100);
         jobPostingDTO.setProjectDuration(ProjectDuration.SHORT_TERM);
         jobPostingDTO.setExperienceLevel(ExperienceLevel.INTERMEDIATE);
-        jobPostingDTO.setCategoryId(1L);
-        jobPostingDTO.setSkillIds(skillIds);
+        jobPostingDTO.setCategory(categoryDTO);
+        jobPostingDTO.setSkills(skillDTOs);
 
-        // Prepare mocked Skill entities
+        // Mocked Skill and Category entities
         Skill skill1 = new Skill();
         skill1.setSkillId(101L);
         skill1.setSkill("Java");
@@ -90,6 +104,7 @@ public class JobPostingServiceImplTest {
         Category category = new Category();
         category.setCategoryId(1L);
         category.setCategory("Development");
+        category.setSpeciality("Backend");
 
         JobPosting jobPosting = new JobPosting();
         jobPosting.setTitle(jobPostingDTO.getTitle());
@@ -103,37 +118,32 @@ public class JobPostingServiceImplTest {
         jobPosting.setSkills(Set.of(skill1, skill2));
         jobPosting.setJobPostingStatus(JobPostingStatus.OPEN);
 
-        // Mock repository and mapper behaviors
-        when(skillRepository.findAllById(skillIds)).thenReturn(List.of(skill1, skill2));
+        // Mock repository and model mapper behavior
+        when(skillRepository.findAllById(any())).thenReturn(List.of(skill1, skill2));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
         when(jobPostingRepository.save(any(JobPosting.class))).thenAnswer(invocation -> {
             JobPosting saved = invocation.getArgument(0);
             saved.setJobPostingId(1L);
-            saved.setCreatedAt(LocalDateTime.now());
-            saved.setUpdatedAt(LocalDateTime.now());
             return saved;
         });
 
-        // Mock mapping back from entity to DTO with IDs only (no nested DTOs)
-        JobPostingDTO returnedDTO = new JobPostingDTO();
-        returnedDTO.setTitle(jobPosting.getTitle());
-        returnedDTO.setDescription(jobPosting.getDescription());
-        returnedDTO.setBudgetType(jobPosting.getBudgetType());
-        returnedDTO.setHourlyMinRate(jobPosting.getHourlyMinRate());
-        returnedDTO.setHourlyMaxRate(jobPosting.getHourlyMaxRate());
-        returnedDTO.setProjectDuration(jobPosting.getProjectDuration());
-        returnedDTO.setExperienceLevel(jobPosting.getExperienceLevel());
-        returnedDTO.setCategoryId(category.getCategoryId());
-        returnedDTO.setJobPostingStatus(jobPosting.getJobPostingStatus());
-        returnedDTO.setSkillIds(jobPosting.getSkills().stream()
-                .map(Skill::getSkillId)
-                .collect(Collectors.toSet()));
-        LocalDateTime now = LocalDateTime.now();
+        JobPostingDTO returnedDTO = JobPostingDTO.builder()
+                .title(jobPosting.getTitle())
+                .description(jobPosting.getDescription())
+                .budgetType(jobPosting.getBudgetType())
+                .hourlyMinRate(jobPosting.getHourlyMinRate())
+                .hourlyMaxRate(jobPosting.getHourlyMaxRate())
+                .projectDuration(jobPosting.getProjectDuration())
+                .experienceLevel(jobPosting.getExperienceLevel())
+                .jobPostingStatus(jobPosting.getJobPostingStatus())
+                .category(categoryDTO)
+                .skills(skillDTOs)
+                .build();
 
         when(modelMapper.map(any(JobPosting.class), eq(JobPostingDTO.class))).thenReturn(returnedDTO);
 
-        // Call the service
+        // Call service
         JobPostingDTO result = jobPostingService.createJobPosting(jobPostingDTO);
 
         // Assertions
@@ -146,10 +156,19 @@ public class JobPostingServiceImplTest {
         assertEquals(jobPostingDTO.getProjectDuration(), result.getProjectDuration());
         assertEquals(jobPostingDTO.getExperienceLevel(), result.getExperienceLevel());
         assertEquals(JobPostingStatus.OPEN, result.getJobPostingStatus());
-        assertEquals(jobPostingDTO.getCategoryId(), result.getCategoryId());
-        assertEquals(skillIds, result.getSkillIds());
-        // Verify mocks
-        verify(skillRepository, times(1)).findAllById(skillIds);
+        assertEquals(jobPostingDTO.getCategory().getCategoryId(), result.getCategory().getCategoryId());
+
+        Set<Long> expectedSkillIds = jobPostingDTO.getSkills().stream()
+                .map(SkillDTO::getSkillId)
+                .collect(Collectors.toSet());
+        Set<Long> resultSkillIds = result.getSkills().stream()
+                .map(SkillDTO::getSkillId)
+                .collect(Collectors.toSet());
+
+        assertEquals(expectedSkillIds, resultSkillIds);
+
+        // Verify interactions
+        verify(skillRepository, times(1)).findAllById(expectedSkillIds);
         verify(categoryRepository, times(1)).findById(1L);
         verify(jobPostingRepository, times(1)).save(any(JobPosting.class));
         verify(modelMapper, times(1)).map(jobPostingDTO, JobPosting.class);
@@ -173,7 +192,11 @@ public class JobPostingServiceImplTest {
 
         // Prepare skill IDs and mock skill repository
         Set<Long> skillIds = Set.of(101L, 102L);
-        jobPostingDTO.setSkillIds(skillIds);
+        Set<SkillDTO> skillDTOs = skillIds.stream()
+                .map(id -> SkillDTO.builder().skillId(id).build())
+                .collect(Collectors.toSet());
+        jobPostingDTO.setSkills(skillDTOs);
+
 
         Skill skill1 = new Skill();
         skill1.setSkillId(101L);
@@ -184,7 +207,7 @@ public class JobPostingServiceImplTest {
         skill2.setSkill("Skill 2");
 
         when(skillRepository.findAllById(skillIds)).thenReturn(List.of(skill1, skill2));
-        when(categoryRepository.findById(jobPostingDTO.getCategoryId())).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(jobPostingDTO.getCategory().getCategoryId())).thenReturn(Optional.of(category));
         when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
 
         // Mock save to set ID, timestamps, and default status if null
