@@ -66,13 +66,13 @@ public class JobPosting {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "job_postings_skills",
             joinColumns = @JoinColumn(name = "job_posting_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<Skill> skills = new HashSet<>();
+    private Set<Skill> skills;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

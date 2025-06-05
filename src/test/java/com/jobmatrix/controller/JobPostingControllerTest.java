@@ -112,9 +112,7 @@ public class JobPostingControllerTest {
                 "Technology", List.of("Software Development", "DevOps"),
                 "Design", List.of("UI/UX", "Graphic Design")
         );
-
         Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);
-
         // When
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/categories"))
                 .andExpect(MockMvcResultMatchers.status().isOk())

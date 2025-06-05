@@ -1,5 +1,6 @@
 package com.jobmatrix.serviceimpl;
 
+import com.common.dto.CategoryDTO;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
@@ -10,6 +11,7 @@ import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.entity.Skill;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+import com.jobmatrix.exceptionHandling.SkillNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
@@ -38,37 +40,51 @@ public class JobPostingServiceImpl implements JobPostingService {
         // 1. Extract and validate categoryId from CategoryDTO
         Long categoryId = (jobPostingDTO.getCategory() != null) ? jobPostingDTO.getCategory().getCategoryId() : null;
         if (categoryId == null) {
-            throw new RuntimeException("Category ID is required");
+            throw new CategoryNotFoundException(-1L);
         }
+
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+
         // 2. Extract and validate skills from SkillDTOs
         Set<Skill> skills = new HashSet<>();
         if (jobPostingDTO.getSkills() != null && !jobPostingDTO.getSkills().isEmpty()) {
             Set<Long> skillIds = jobPostingDTO.getSkills().stream()
                     .map(SkillDTO::getSkillId)
                     .collect(Collectors.toSet());
+
             List<Skill> foundSkills = skillRepository.findAllById(skillIds);
             if (foundSkills.size() != skillIds.size()) {
-                throw new RuntimeException("Some skillIds are invalid");
+                throw new SkillNotFoundException("Some skill IDs are invalid or not found");
             }
+
             skills.addAll(foundSkills);
         }
+
         // 3. Map DTO to entity
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
         jobPosting.setJobPostingId(null); // Ensure it's a new entity
         jobPosting.setCategory(category);
         jobPosting.setSkills(skills);
+
         // 4. Set default status if not provided
         if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
+
         // 5. Save the entity
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
+
         // 6. Map saved entity to DTO
         JobPostingDTO resultDTO = modelMapper.map(savedJobPosting, JobPostingDTO.class);
-        // 7. Manually populate CategoryDTO
-        Category savedCategory = savedJobPosting.getCategory();
+
+        // 7. Manually populate CategoryDTO (including speciality)
+        resultDTO.setCategory(CategoryDTO.builder()
+                .categoryId(savedJobPosting.getCategory().getCategoryId())
+                .category(savedJobPosting.getCategory().getCategory())
+                .speciality(savedJobPosting.getCategory().getSpeciality())
+                .build());
+
         // 8. Populate full SkillDTOs
         if (savedJobPosting.getSkills() != null) {
             Set<SkillDTO> skillDTOs = savedJobPosting.getSkills().stream()
@@ -79,8 +95,10 @@ public class JobPostingServiceImpl implements JobPostingService {
                     .collect(Collectors.toSet());
             resultDTO.setSkills(skillDTOs);
         }
+
         return resultDTO;
     }
+
 
     @Override
     public List<JobPosting> getOpenJobPostings() {

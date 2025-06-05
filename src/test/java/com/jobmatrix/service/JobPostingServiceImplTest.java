@@ -242,15 +242,11 @@ public class JobPostingServiceImplTest {
     public void testGetOpenJobPostings_WhenSomeAreOpen() {
         JobPosting openJob1 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
         JobPosting openJob2 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
-
         openJob1.setJobPostingStatus(JobPostingStatus.OPEN);
         openJob2.setJobPostingStatus(JobPostingStatus.OPEN);
-
         when(jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN))
                 .thenReturn(List.of(openJob1, openJob2));
-
         List<JobPosting> result = jobPostingService.getOpenJobPostings();
-
         assertNotNull(result);
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(job -> job.getJobPostingStatus() == JobPostingStatus.OPEN));
