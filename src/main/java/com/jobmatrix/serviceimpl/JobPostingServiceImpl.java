@@ -38,36 +38,50 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Transactional
     public JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO) {
         // 1. Extract skill IDs from the DTO
-        List<Long> skillIds = jobPostingDTO.getSkills() == null ?
-                Collections.emptyList() :
-                jobPostingDTO.getSkills().stream()
-                        .map(SkillDTO::getSkillId)
-                        .collect(Collectors.toList());
+        List<Long> skillIds = jobPostingDTO.getSkills() == null
+                ? Collections.emptyList()
+                : jobPostingDTO.getSkills().stream()
+                .map(SkillDTO::getSkillId)
+                .collect(Collectors.toList());
 
         // 2. Fetch Skill entities by IDs
         List<Skill> skills = skillRepository.findAllById(skillIds);
 
-        // 3. Fetch Category entity by ID
-        Category category = categoryRepository.findById(jobPostingDTO.getCategory().getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        // 3. Validate all requested skill IDs were found
+        Set<Long> foundSkillIds = skills.stream()
+                .map(Skill::getSkillId)
+                .collect(Collectors.toSet());
 
-        // 4. Map DTO to Entity
+        for (Long skillId : skillIds) {
+            if (!foundSkillIds.contains(skillId)) {
+                throw new SkillNotFoundException(skillId);
+            }
+        }
+
+        // 4. Fetch and validate Category
+        Long categoryId = jobPostingDTO.getCategory().getCategoryId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+
+        // 5. Map DTO to Entity
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
 
-        // 5. Set skills and category to job posting
+        // 6. Set skills and category to job posting
         jobPosting.setSkills(new HashSet<>(skills));
         jobPosting.setCategory(category);
 
-        // 6. Set default status (example)
-        jobPosting.setJobPostingStatus(JobPostingStatus.OPEN);
+        // 7. Set default status if null
+        if (jobPosting.getJobPostingStatus() == null) {
+            jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
+        }
 
-        // 7. Save job posting
+        // 8. Save job posting
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
 
-        // 8. Map saved entity back to DTO and return
+        // 9. Map saved entity back to DTO and return
         return modelMapper.map(savedJobPosting, JobPostingDTO.class);
     }
-
 
     @Override
     public List<JobPosting> getOpenJobPostings() {
