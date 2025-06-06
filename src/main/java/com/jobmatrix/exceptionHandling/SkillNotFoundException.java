@@ -2,7 +2,7 @@ package com.jobmatrix.exceptionHandling;
 
 public class SkillNotFoundException extends RuntimeException {
 
-    public SkillNotFoundException(String message) {
-        super(message);
+    public SkillNotFoundException(Long skillId) {
+        super("Skill not found at given skillId: " + skillId);
     }
 }

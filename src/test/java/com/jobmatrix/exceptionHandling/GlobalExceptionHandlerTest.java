@@ -25,6 +25,10 @@ class GlobalExceptionHandlerTest {
             throw new CategoryNotFoundException(5L); // Correct usage
         }
 
+        @GetMapping("/test-skill-not-found")
+        public String throwSkillNotFoundException() {
+            throw new SkillNotFoundException(10L); // Correct usage
+        }
         @GetMapping("/test-job-posting-not-found")
         public String throwJobPostingNotFoundException() {
             throw new JobPostingNotFoundException(7L);
@@ -50,6 +54,16 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Category not found at given categoryId: 5"));
     }
+
+    @Test
+    void handleSkillNotFound_ShouldReturnNotFoundWithMessage() throws Exception
+    {
+        mockMvc.perform(get("/test-skill-not-found")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Skill not found at given skillId: 10"));
+    }
+
 
     @Test
     void handleJobPostingNotFound_ShouldReturnNotFoundWithMessage() throws Exception {

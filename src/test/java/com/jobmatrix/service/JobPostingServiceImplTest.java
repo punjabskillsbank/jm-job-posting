@@ -68,7 +68,6 @@ public class JobPostingServiceImplTest {
     }
 
     @Test
-
     public void testCreateJobPosting_Success() {
         // Prepare input DTO
         Set<SkillDTO> skillDTOs = Set.of(
@@ -92,7 +91,7 @@ public class JobPostingServiceImplTest {
         jobPostingDTO.setCategory(categoryDTO);
         jobPostingDTO.setSkills(skillDTOs);
 
-        // Mocked Skill and Category entities
+        // Mock Skill entities
         Skill skill1 = new Skill();
         skill1.setSkillId(101L);
         skill1.setSkill("Java");
@@ -101,11 +100,13 @@ public class JobPostingServiceImplTest {
         skill2.setSkillId(102L);
         skill2.setSkill("Spring Boot");
 
+        // Mock Category entity
         Category category = new Category();
         category.setCategoryId(1L);
         category.setCategory("Development");
         category.setSpeciality("Backend");
 
+        // Mock JobPosting entity
         JobPosting jobPosting = new JobPosting();
         jobPosting.setTitle(jobPostingDTO.getTitle());
         jobPosting.setDescription(jobPostingDTO.getDescription());
@@ -118,7 +119,7 @@ public class JobPostingServiceImplTest {
         jobPosting.setSkills(Set.of(skill1, skill2));
         jobPosting.setJobPostingStatus(JobPostingStatus.OPEN);
 
-        // Mock repository and model mapper behavior
+        // Mock repository and mapper behavior
         when(skillRepository.findAllById(any())).thenReturn(List.of(skill1, skill2));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
@@ -143,7 +144,7 @@ public class JobPostingServiceImplTest {
 
         when(modelMapper.map(any(JobPosting.class), eq(JobPostingDTO.class))).thenReturn(returnedDTO);
 
-        // Call service
+        // Call service method
         JobPostingDTO result = jobPostingService.createJobPosting(jobPostingDTO);
 
         // Assertions
@@ -167,13 +168,18 @@ public class JobPostingServiceImplTest {
 
         assertEquals(expectedSkillIds, resultSkillIds);
 
-        // Verify interactions
-        verify(skillRepository, times(1)).findAllById(expectedSkillIds);
+        // Verify repository calls with proper argument matcher
+        verify(skillRepository, times(1)).findAllById(argThat(ids -> {
+            Set<Long> idsSet = new HashSet<>();
+            ids.forEach(idsSet::add);
+            return idsSet.equals(expectedSkillIds);
+        }));
         verify(categoryRepository, times(1)).findById(1L);
         verify(jobPostingRepository, times(1)).save(any(JobPosting.class));
         verify(modelMapper, times(1)).map(jobPostingDTO, JobPosting.class);
         verify(modelMapper, times(1)).map(any(JobPosting.class), eq(JobPostingDTO.class));
     }
+
 
     @Test
     public void testCreateJobPosting_NullStatus() {
@@ -197,7 +203,6 @@ public class JobPostingServiceImplTest {
                 .collect(Collectors.toSet());
         jobPostingDTO.setSkills(skillDTOs);
 
-
         Skill skill1 = new Skill();
         skill1.setSkillId(101L);
         skill1.setSkill("Skill 1");
@@ -206,7 +211,14 @@ public class JobPostingServiceImplTest {
         skill2.setSkillId(102L);
         skill2.setSkill("Skill 2");
 
-        when(skillRepository.findAllById(skillIds)).thenReturn(List.of(skill1, skill2));
+        // Use argThat to match skillIds ignoring order
+        when(skillRepository.findAllById(argThat(ids -> {
+            if (ids == null) return false;
+            Set<Long> actualIds = new HashSet<>();
+            ids.forEach(actualIds::add);
+            return actualIds.equals(skillIds);
+        }))).thenReturn(List.of(skill1, skill2));
+
         when(categoryRepository.findById(jobPostingDTO.getCategory().getCategoryId())).thenReturn(Optional.of(category));
         when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
 
@@ -237,6 +249,7 @@ public class JobPostingServiceImplTest {
         assertNotNull(result);
         assertEquals(JobPostingStatus.IN_REVIEW, result.getJobPostingStatus());
     }
+
 
     @Test
     public void testGetOpenJobPostings_WhenSomeAreOpen() {
