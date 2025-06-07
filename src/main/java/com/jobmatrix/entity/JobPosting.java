@@ -7,7 +7,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 

@@ -1,6 +1,5 @@
 package com.jobmatrix.serviceimpl;
 
-import com.common.dto.CategoryDTO;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
@@ -39,14 +38,11 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Transactional
     public JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO) {
 
-
         List<Long> skillIds = Optional.ofNullable(jobPostingDTO.getSkills())
                 .orElse(Collections.emptySet())
                 .stream()
                 .map(SkillDTO::getSkillId)
                 .collect(Collectors.toList());
-
-
 
         List<Skill> skills = skillRepository.findAllById(skillIds);
         Set<Long> foundSkillIds = skills.stream()
@@ -69,9 +65,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
-
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
-
         return modelMapper.map(savedJobPosting, JobPostingDTO.class);
     }
 
