@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,9 +25,9 @@ public class JobPostingController {
     private JobPostingService jobPostingService;
 
     @PostMapping("/create_job_posting")
-    public ResponseEntity<JobPosting> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
-        JobPosting createdJobPosting = jobPostingService.createJobPosting(jobPostingDTO);
-        return new ResponseEntity<>(createdJobPosting, HttpStatus.CREATED);
+    public ResponseEntity<JobPostingDTO> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
+        JobPostingDTO createdJobPostingDTO = jobPostingService.createJobPosting(jobPostingDTO);
+        return new ResponseEntity<>(createdJobPostingDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/open_job_postings")

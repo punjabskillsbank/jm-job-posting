@@ -1,10 +1,13 @@
 package com.jobmatrix.test_utils.factory;
 
+import com.common.dto.CategoryDTO;
+import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 public class JobPostingTestDataFactory {
@@ -20,6 +23,18 @@ public class JobPostingTestDataFactory {
     private static final long CATEGORY_ID = 1L;
 
     public static JobPostingDTO createJobPostingDTO(UUID clientId) {
+        CategoryDTO categoryDTO = CategoryDTO.builder()
+                .categoryId(1L)
+                .category("Web Development")
+                .speciality("Java Backend")
+                .build();
+
+        Set<SkillDTO> skillDTOs = Set.of(
+                SkillDTO.builder().skillId(1L).skill("Java").build(),
+                SkillDTO.builder().skillId(2L).skill("Spring").build()
+                // Add more skills as needed
+        );
+
         return JobPostingDTO.builder()
                 .clientId(clientId)
                 .title(TITLE)
@@ -29,7 +44,8 @@ public class JobPostingTestDataFactory {
                 .hourlyMaxRate(HOURLY_MAX_RATE)
                 .projectDuration(PROJECT_DURATION)
                 .experienceLevel(EXPERIENCE_LEVEL)
-                .categoryId(CATEGORY_ID)
+                .category(categoryDTO)
+                .skills(skillDTOs)
                 .jobPostingStatus(STATUS)
                 .build();
     }

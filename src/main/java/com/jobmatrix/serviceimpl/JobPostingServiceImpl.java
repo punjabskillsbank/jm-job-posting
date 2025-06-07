@@ -1,16 +1,20 @@
 package com.jobmatrix.serviceimpl;
 
 import com.common.exceptionHandling.ClientNotFoundException;
+import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
+import com.jobmatrix.entity.Skill;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+import com.jobmatrix.exceptionHandling.SkillNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
+import com.jobmatrix.repository.SkillRepository;
 import com.jobmatrix.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -28,24 +32,41 @@ public class JobPostingServiceImpl implements JobPostingService {
     private final CategoryRepository categoryRepository;
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+    private final SkillRepository skillRepository;
 
     @Override
     @Transactional
-    public JobPosting createJobPosting(JobPostingDTO jobPostingDTO) {
-        // Map DTO to Entity
+    public JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO) {
+
+        List<Long> skillIds = Optional.ofNullable(jobPostingDTO.getSkills())
+                .orElse(Collections.emptySet())
+                .stream()
+                .map(SkillDTO::getSkillId)
+                .collect(Collectors.toList());
+
+        List<Skill> skills = skillRepository.findAllById(skillIds);
+        Set<Long> foundSkillIds = skills.stream()
+                .map(Skill::getSkillId)
+                .collect(Collectors.toSet());
+
+        for (Long skillId : skillIds) {
+            if (!foundSkillIds.contains(skillId)) {
+                throw new SkillNotFoundException(skillId);
+            }
+        }
+        Long categoryId = jobPostingDTO.getCategory().getCategoryId();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
-        // Ensure it's treated as a new entity
-        jobPosting.setJobPostingId(null);
-        // Set default job posting status if it is null
-        if (jobPostingDTO.getJobPostingStatus() == null) {
+        jobPosting.setSkills(new HashSet<>(skills));
+        jobPosting.setCategory(category);
+
+        if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
-        // Fetch category and set it
-        Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
-        jobPosting.setCategory(category);
-        // Save and return
-        return jobPostingRepository.save(jobPosting);
+        JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
+        return modelMapper.map(savedJobPosting, JobPostingDTO.class);
     }
 
     @Override

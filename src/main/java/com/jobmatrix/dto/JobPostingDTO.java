@@ -1,19 +1,19 @@
 package com.jobmatrix.dto;
 
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.JobPostingStatus;
-import com.jobmatrix.entity.ProjectDuration;
+import com.common.dto.CategoryDTO;
+import com.common.dto.SkillDTO;
+import com.jobmatrix.entity.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Builder(toBuilder = true)
 public class JobPostingDTO {
 
@@ -43,8 +43,12 @@ public class JobPostingDTO {
     @NotNull(message = "experience_level cannot be null.")
     private ExperienceLevel experienceLevel;
 
-    @NotNull(message = "category_id cannot be null.")
-    private Long categoryId;
+    @NotNull(message = "category  cannot be null.")
+    private CategoryDTO category;
+
+    @NotNull(message = "At least one skill must be provided.")
+    private Set<SkillDTO> skills;
 
     private JobPostingStatus jobPostingStatus;
+
 }
