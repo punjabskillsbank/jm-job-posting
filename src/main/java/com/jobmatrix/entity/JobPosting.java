@@ -66,7 +66,7 @@ public class JobPosting {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany
     @JoinTable(
             name = "job_postings_skills",
             joinColumns = @JoinColumn(name = "job_posting_id"),
