@@ -5,9 +5,11 @@ import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingQuestion;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+import com.jobmatrix.exceptionHandling.QuestionLimitExceedException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
@@ -44,6 +46,20 @@ public class JobPostingServiceImpl implements JobPostingService {
         Category category = categoryRepository.findById(jobPostingDTO.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException(jobPostingDTO.getCategoryId()));
         jobPosting.setCategory(category);
+        // Handle optional questions
+        if (jobPostingDTO.getQuestions() != null) {
+            if (jobPostingDTO.getQuestions().size() > 5) {
+                throw new QuestionLimitExceedException();
+            }
+            List<JobPostingQuestion> questionEntities = jobPostingDTO.getQuestions().stream()
+                    .map(q -> {
+                        JobPostingQuestion question = new JobPostingQuestion();
+                        question.setQuestion(q);
+                        question.setJobPosting(jobPosting);
+                        return question;
+                    }).collect(Collectors.toList());
+            jobPosting.setQuestions(questionEntities);
+        }
         // Save and return
         return jobPostingRepository.save(jobPosting);
     }

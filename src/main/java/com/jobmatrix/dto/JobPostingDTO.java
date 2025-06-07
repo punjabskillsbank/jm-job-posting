@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -16,8 +17,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class JobPostingDTO {
-
-    private Long jobPostingId;
 
     @NotNull(message = "client_id cannot be null.")
     private UUID clientId;
@@ -47,4 +46,7 @@ public class JobPostingDTO {
     private Long categoryId;
 
     private JobPostingStatus jobPostingStatus;
+
+    private List<String> questions;
+
 }

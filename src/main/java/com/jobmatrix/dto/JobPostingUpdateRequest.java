@@ -5,6 +5,8 @@ import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.entity.ProjectDuration;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,4 +22,5 @@ public class JobPostingUpdateRequest {
     private ProjectDuration projectDuration;
     private ExperienceLevel experienceLevel;
     private Long categoryId;
+    private List<String> questions;
 }

@@ -11,6 +11,7 @@ import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+import com.jobmatrix.exceptionHandling.QuestionLimitExceedException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.JobPostingRepository;
@@ -26,10 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -139,6 +137,51 @@ public class JobPostingServiceImplTest {
         assertEquals(JobPostingStatus.IN_REVIEW, result.getJobPostingStatus());
     }
 
+    @Test
+    public void testCreateJobPosting_WithValidQuestions() {
+        // Given
+        List<String> questions = List.of("Question 1", "Question 2");
+        jobPostingDTO.setQuestions(questions);
+
+        JobPosting jobPosting = new JobPosting();
+        jobPosting.setQuestions(new ArrayList<>());
+
+        when(categoryRepository.findById(jobPostingDTO.getCategoryId())).thenReturn(Optional.of(category));
+        when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
+        when(jobPostingRepository.save(any(JobPosting.class))).thenAnswer(invocation -> {
+            JobPosting savedJob = invocation.getArgument(0);
+            savedJob.setJobPostingId(1L);
+            savedJob.setCreatedAt(LocalDateTime.now());
+            savedJob.setUpdatedAt(LocalDateTime.now());
+            return savedJob;
+        });
+        // When
+        JobPosting result = jobPostingService.createJobPosting(jobPostingDTO);
+        // Then
+        assertNotNull(result);
+        assertNotNull(result.getQuestions());
+        assertEquals(questions.size(), result.getQuestions().size());
+        assertEquals("Question 1", result.getQuestions().get(0).getQuestion());
+        assertEquals("Question 2", result.getQuestions().get(1).getQuestion());
+
+        verify(categoryRepository, times(1)).findById(jobPostingDTO.getCategoryId());
+        verify(modelMapper, times(1)).map(jobPostingDTO, JobPosting.class);
+        verify(jobPostingRepository, times(1)).save(any(JobPosting.class));
+    }
+
+    @Test
+    public void testCreateJobPosting_WithTooManyQuestions() {
+        List<String> tooManyQuestions = List.of(
+                "Q1", "Q2", "Q3", "Q4", "Q5", "Q6"
+        );
+        jobPostingDTO.setQuestions(tooManyQuestions);
+        when(categoryRepository.findById(jobPostingDTO.getCategoryId())).thenReturn(Optional.of(category));
+        when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(new JobPosting());
+        assertThrows(QuestionLimitExceedException.class, () -> {
+            jobPostingService.createJobPosting(jobPostingDTO);
+        });
+        verify(jobPostingRepository, never()).save(any());
+    }
 
     @Test
     public void testGetOpenJobPostings_WhenSomeAreOpen() {
