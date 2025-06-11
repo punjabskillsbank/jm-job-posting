@@ -1,15 +1,21 @@
 package com.jobmatrix.serviceimpl;
 
+import com.common.entity.Category;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingQuestionDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.Category;
 import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.entity.JobPostingQuestion;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.entity.Skill;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+<<<<<<< Updated upstream
+import com.jobmatrix.exceptionHandling.QuestionLimitExceedException;
+=======
+>>>>>>> Stashed changes
 import com.jobmatrix.exceptionHandling.SkillNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
@@ -58,15 +64,54 @@ public class JobPostingServiceImpl implements JobPostingService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
 
+<<<<<<< Updated upstream
+        jobPostingDTO.setJobPostingId(null);
+
+=======
+>>>>>>> Stashed changes
         JobPosting jobPosting = modelMapper.map(jobPostingDTO, JobPosting.class);
         jobPosting.setSkills(new HashSet<>(skills));
         jobPosting.setCategory(category);
 
+<<<<<<< Updated upstream
+        //handle questions
+        List<JobPostingQuestionDTO> questionDTOs = jobPostingDTO.getQuestions();
+        if (questionDTOs != null && !questionDTOs.isEmpty()) {
+            if (questionDTOs.size() > 5) {
+                throw new QuestionLimitExceedException();
+            }
+            List<JobPostingQuestion> questions = questionDTOs.stream()
+                    .map(dto -> JobPostingQuestion.builder()
+                            .question(dto.getQuestion())
+                            .jobPosting(jobPosting)
+                            .build())
+                    .toList();
+            jobPosting.setQuestions(questions);
+        }
+
+=======
+>>>>>>> Stashed changes
         if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
+<<<<<<< Updated upstream
+        JobPostingDTO responseDTO = modelMapper.map(savedJobPosting, JobPostingDTO.class);
+
+        // Manually map questions to response DTO
+        if (savedJobPosting.getQuestions() != null) {
+            List<JobPostingQuestionDTO> savedQuestionDTOs = savedJobPosting.getQuestions().stream()
+                    .map(q -> JobPostingQuestionDTO.builder()
+                            .questionId(q.getQuestionId() != null ? q.getQuestionId().longValue() : null)
+                            .question(q.getQuestion())
+                            .build())
+                    .toList();
+            responseDTO.setQuestions(savedQuestionDTOs);
+        }
+        return responseDTO;
+=======
         return modelMapper.map(savedJobPosting, JobPostingDTO.class);
+>>>>>>> Stashed changes
     }
 
     @Override
