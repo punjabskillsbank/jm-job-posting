@@ -6,11 +6,8 @@ import com.jobmatrix.entity.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-<<<<<<< Updated upstream
 
 import java.util.List;
-=======
->>>>>>> Stashed changes
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,8 +53,5 @@ public class JobPostingDTO {
 
     private JobPostingStatus jobPostingStatus;
 
-<<<<<<< Updated upstream
     private List<JobPostingQuestionDTO> questions;
-=======
->>>>>>> Stashed changes
 }

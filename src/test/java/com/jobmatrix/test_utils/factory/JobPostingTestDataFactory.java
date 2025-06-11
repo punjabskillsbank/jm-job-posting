@@ -2,10 +2,7 @@ package com.jobmatrix.test_utils.factory;
 
 import com.common.dto.CategoryDTO;
 import com.common.dto.SkillDTO;
-<<<<<<< Updated upstream
 import com.common.entity.Category;
-=======
->>>>>>> Stashed changes
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.*;

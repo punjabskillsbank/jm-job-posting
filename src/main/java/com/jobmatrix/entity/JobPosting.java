@@ -1,10 +1,8 @@
 package com.jobmatrix.entity;
 
-<<<<<<< Updated upstream
 import com.common.entity.Category;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-=======
->>>>>>> Stashed changes
+
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcType;
@@ -12,10 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import java.time.LocalDateTime;
-<<<<<<< Updated upstream
+
 import java.util.List;
-=======
->>>>>>> Stashed changes
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -82,13 +79,10 @@ public class JobPosting {
     )
     private Set<Skill> skills;
 
-<<<<<<< Updated upstream
     @JsonManagedReference
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JobPostingQuestion> questions;
 
-=======
->>>>>>> Stashed changes
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
