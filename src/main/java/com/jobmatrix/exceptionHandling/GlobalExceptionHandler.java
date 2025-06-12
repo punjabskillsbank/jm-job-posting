@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(QuestionLimitExceedException.class)
-    public ResponseEntity<String> handleQuestionLimitExceedException(QuestionLimitExceedException ex) {
+    @ExceptionHandler(QuestionLimitExceededException.class)
+    public ResponseEntity<String> handleQuestionLimitExceedException(QuestionLimitExceededException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

@@ -1,7 +1,7 @@
 package com.jobmatrix.exceptionHandling;
 
-public class QuestionLimitExceedException extends RuntimeException {
-    public QuestionLimitExceedException() {
+public class QuestionLimitExceededException extends RuntimeException {
+    public QuestionLimitExceededException() {
         super("Question Limit Exceeded. Maximum 5 questions are allowed.");
     }
 }

@@ -41,7 +41,7 @@ class GlobalExceptionHandlerTest {
 
         @GetMapping("/test-question-limit-exceed")
         public String throwQuestionLimitExceedException() {
-            throw new QuestionLimitExceedException();
+            throw new QuestionLimitExceededException();
         }
     }
 

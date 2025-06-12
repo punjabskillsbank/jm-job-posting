@@ -13,7 +13,7 @@ import com.jobmatrix.entity.Skill;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 
-import com.jobmatrix.exceptionHandling.QuestionLimitExceedException;
+import com.jobmatrix.exceptionHandling.QuestionLimitExceededException;
 
 import com.jobmatrix.exceptionHandling.SkillNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
@@ -73,7 +73,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         List<JobPostingQuestionDTO> questionDTOs = jobPostingDTO.getQuestions();
         if (questionDTOs != null && !questionDTOs.isEmpty()) {
             if (questionDTOs.size() > 5) {
-                throw new QuestionLimitExceedException();
+                throw new QuestionLimitExceededException();
             }
             List<JobPostingQuestion> questions = questionDTOs.stream()
                     .map(dto -> JobPostingQuestion.builder()
@@ -88,19 +88,22 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
         }
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
-        JobPostingDTO responseDTO = modelMapper.map(savedJobPosting, JobPostingDTO.class);
+        return mapJobPostingToDTO(savedJobPosting);
+    }
+    private JobPostingDTO mapJobPostingToDTO(JobPosting jobPosting) {
+        JobPostingDTO dto = modelMapper.map(jobPosting, JobPostingDTO.class);
 
-        // Manually map questions to response DTO
-        if (savedJobPosting.getQuestions() != null) {
-            List<JobPostingQuestionDTO> savedQuestionDTOs = savedJobPosting.getQuestions().stream()
+        if (jobPosting.getQuestions() != null) {
+            List<JobPostingQuestionDTO> questionDTOs = jobPosting.getQuestions().stream()
                     .map(q -> JobPostingQuestionDTO.builder()
                             .questionId(q.getQuestionId() != null ? q.getQuestionId().longValue() : null)
                             .question(q.getQuestion())
                             .build())
                     .toList();
-            responseDTO.setQuestions(savedQuestionDTOs);
+            dto.setQuestions(questionDTOs);
         }
-        return responseDTO;
+
+        return dto;
     }
 
     @Override

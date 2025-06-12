@@ -79,7 +79,6 @@ public class JobPosting {
     )
     private Set<Skill> skills;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JobPostingQuestion> questions;
 

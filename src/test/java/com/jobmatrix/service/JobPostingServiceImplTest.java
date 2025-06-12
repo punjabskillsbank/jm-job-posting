@@ -18,7 +18,7 @@ import com.jobmatrix.repository.SkillRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.serviceimpl.JobPostingServiceImpl;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
-import com.jobmatrix.exceptionHandling.QuestionLimitExceedException;
+import com.jobmatrix.exceptionHandling.QuestionLimitExceededException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -362,7 +362,7 @@ public class JobPostingServiceImplTest {
         when(categoryRepository.findById(3L)).thenReturn(Optional.of(category));
         when(modelMapper.map(any(JobPostingDTO.class), eq(JobPosting.class)))
                 .thenReturn(new JobPosting()); // Fixed: return dummy JobPosting
-        assertThrows(QuestionLimitExceedException.class, () -> {
+        assertThrows(QuestionLimitExceededException.class, () -> {
             jobPostingService.createJobPosting(jobPostingDTO);
         });
         verify(jobPostingRepository, never()).save(any());
