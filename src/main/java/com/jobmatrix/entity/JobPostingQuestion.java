@@ -19,7 +19,7 @@ public class JobPostingQuestion{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
-    private Integer questionId;
+    private Long questionId;
 
     @Column(name = "question", nullable = false, columnDefinition = "TEXT")
     private String question;
