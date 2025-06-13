@@ -33,7 +33,6 @@ public class JobPostingQuestion{
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "job_posting_id", nullable = false)
     private JobPosting jobPosting;
 }
