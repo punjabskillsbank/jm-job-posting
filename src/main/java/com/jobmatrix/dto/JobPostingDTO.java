@@ -2,7 +2,10 @@ package com.jobmatrix.dto;
 
 import com.common.dto.CategoryDTO;
 import com.common.dto.SkillDTO;
-import com.jobmatrix.entity.*;
+import com.common.enums.BudgetType;
+import com.common.enums.ExperienceLevel;
+import com.common.enums.JobPostingStatus;
+import com.common.enums.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
