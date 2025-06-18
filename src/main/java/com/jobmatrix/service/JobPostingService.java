@@ -1,9 +1,9 @@
 package com.jobmatrix.service;
 
+import com.common.entity.JobPosting;
+import com.common.enums.JobPostingStatus;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.entity.JobPostingStatus;
 
 import java.util.List;
 import java.util.Map;
