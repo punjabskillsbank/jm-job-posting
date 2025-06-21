@@ -4,7 +4,7 @@ import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.Category;
+import com.common.entity.Category;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.entity.Skill;

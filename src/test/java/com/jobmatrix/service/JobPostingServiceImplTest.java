@@ -1,5 +1,6 @@
 package com.jobmatrix.service;
 
+import com.common.entity.Category;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;

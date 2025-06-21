@@ -1,0 +1,77 @@
+package com.jobmatrix.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jobmatrix.entity.JobPosting;
+import com.jobmatrix.service.FreelancerSavedJobService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(FreelancerSavedJobController.class)
+public class FreelancerSavedJobControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private FreelancerSavedJobService savedJobService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private final UUID freelancerId = UUID.randomUUID();
+    private final Long jobPostingId = 1L;
+
+    @Test
+    void testSaveJob_Returns200() throws Exception {
+        mockMvc.perform(post("/api/freelancer/saved-jobs/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
+                .andExpect(status().isOk());
+
+        Mockito.verify(savedJobService).saveJob(freelancerId, jobPostingId);
+    }
+
+    @Test
+    void testRemoveJob_Returns200() throws Exception {
+        mockMvc.perform(delete("/api/freelancer/saved-jobs/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
+                .andExpect(status().isOk());
+
+        Mockito.verify(savedJobService).removeSavedJob(freelancerId, jobPostingId);
+    }
+
+    @Test
+    void testGetSavedJobs_ReturnsList() throws Exception {
+        JobPosting job1 = new JobPosting();
+        job1.setJobPostingId(1L);
+        job1.setTitle("Java Dev");
+
+        JobPosting job2 = new JobPosting();
+        job2.setJobPostingId(2L);
+        job2.setTitle("Spring Boot Dev");
+
+        Mockito.when(savedJobService.getSavedJobs(freelancerId))
+                .thenReturn(List.of(job1, job2));
+
+        mockMvc.perform(get("/api/freelancer/saved-jobs/{freelancerId}", freelancerId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].jobPostingId").value(1))
+                .andExpect(jsonPath("$[0].title").value("Java Dev"))
+                .andExpect(jsonPath("$[1].jobPostingId").value(2))
+                .andExpect(jsonPath("$[1].title").value("Spring Boot Dev"));
+
+        Mockito.verify(savedJobService).getSavedJobs(freelancerId);
+    }
+}

@@ -6,6 +6,7 @@ import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.entity.BudgetType;
 import com.jobmatrix.entity.ExperienceLevel;
 import com.jobmatrix.entity.JobPosting;
+import com.common.entity.Category;
 import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
