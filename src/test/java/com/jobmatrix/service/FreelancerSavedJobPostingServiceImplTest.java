@@ -1,11 +1,11 @@
 package com.jobmatrix.service;
 
-import com.jobmatrix.entity.FreelancerSavedJob;
+import com.jobmatrix.entity.FreelancerSavedJobPosting;
 import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.FreelancerSavedJobRepository;
 import com.jobmatrix.repository.JobPostingRepository;
-import com.jobmatrix.serviceimpl.FreelancerSavedJobServiceImpl;
+import com.jobmatrix.serviceimpl.FreelancerSavedJobPostingServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +20,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
-class FreelancerSavedJobServiceImplTest {
+class FreelancerSavedJobPostingServiceImplTest {
 
     @InjectMocks
-    private FreelancerSavedJobServiceImpl service;
+    private FreelancerSavedJobPostingServiceImpl service;
 
     @Mock
     private JobPostingRepository jobPostingRepository;
@@ -44,50 +44,57 @@ class FreelancerSavedJobServiceImplTest {
     }
 
     @Test
-    void testSaveJob_successfullySavesIfNotAlreadyExists() {
+    void testSaveJobPosting_successfullySavesIfNotAlreadyExists() {
         Mockito.when(jobPostingRepository.findById(jobPostingId))
                 .thenReturn(Optional.of(jobPosting));
         Mockito.when(savedJobRepository.existsByFreelancerIdAndJobPostingId(freelancerId, jobPostingId))
                 .thenReturn(false);
 
-        service.saveJob(freelancerId, jobPostingId);
+        service.saveJobPosting(freelancerId, jobPostingId);
 
-        Mockito.verify(savedJobRepository).save(Mockito.any(FreelancerSavedJob.class));
+        Mockito.verify(savedJobRepository).save(Mockito.any(FreelancerSavedJobPosting.class));
     }
 
     @Test
-    void testSaveJob_alreadySaved_doesNotSaveAgain() {
+    void testSaveJobPosting_alreadySaved_doesNotSaveAgain() {
         Mockito.when(jobPostingRepository.findById(jobPostingId))
                 .thenReturn(Optional.of(jobPosting));
         Mockito.when(savedJobRepository.existsByFreelancerIdAndJobPostingId(freelancerId, jobPostingId))
                 .thenReturn(true);
 
-        service.saveJob(freelancerId, jobPostingId);
+        service.saveJobPosting(freelancerId, jobPostingId);
 
         Mockito.verify(savedJobRepository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
-    void testSaveJob_throwsIfJobNotFound() {
+    void testSaveJobPosting_throwsIfJobNotFound() {
         Mockito.when(jobPostingRepository.findById(jobPostingId))
                 .thenReturn(Optional.empty());
 
         Assertions.assertThrows(JobPostingNotFoundException.class, () -> {
-            service.saveJob(freelancerId, jobPostingId);
+            service.saveJobPosting(freelancerId, jobPostingId);
         });
     }
 
     @Test
-    void testRemoveSavedJob_shouldCallDeleteByFreelancerIdAndJobPostingId() {
-        service.removeSavedJob(freelancerId, jobPostingId);
+    void testRemoveSavedJobPosting_shouldCallDeleteByFreelancerIdAndJobPostingId() {
+        service.removeSavedJobPosting(freelancerId, jobPostingId);
         Mockito.verify(savedJobRepository, Mockito.times(1))
                 .deleteByFreelancerIdAndJobPostingId(freelancerId, jobPostingId);
     }
 
     @Test
-    void testGetSavedJobs_shouldReturnJobPostings() {
-        FreelancerSavedJob saved1 = new FreelancerSavedJob(freelancerId, 1L);
-        FreelancerSavedJob saved2 = new FreelancerSavedJob(freelancerId, 2L);
+    void testGetSavedJobPostings_shouldReturnJobPostings() {
+        FreelancerSavedJobPosting saved1 = FreelancerSavedJobPosting.builder()
+                .freelancerId(freelancerId)
+                .jobPostingId(1L)
+                .build();
+
+        FreelancerSavedJobPosting saved2 = FreelancerSavedJobPosting.builder()
+                .freelancerId(freelancerId)
+                .jobPostingId(2L)
+                .build();
 
         JobPosting job1 = new JobPosting();
         job1.setJobPostingId(1L);
@@ -101,7 +108,7 @@ class FreelancerSavedJobServiceImplTest {
         Mockito.when(jobPostingRepository.findAllById(List.of(1L, 2L)))
                 .thenReturn(List.of(job1, job2));
 
-        List<JobPosting> result = service.getSavedJobs(freelancerId);
+        List<JobPosting> result = service.getSavedJobPostings(freelancerId);
 
         Assertions.assertEquals(2, result.size());
         Assertions.assertTrue(result.contains(job1));

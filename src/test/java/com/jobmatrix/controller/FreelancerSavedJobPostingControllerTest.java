@@ -2,14 +2,13 @@ package com.jobmatrix.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.service.FreelancerSavedJobService;
+import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,14 +19,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(FreelancerSavedJobController.class)
-public class FreelancerSavedJobControllerTest {
+@WebMvcTest(FreelancerSavedJobPostingController.class)
+public class FreelancerSavedJobPostingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private FreelancerSavedJobService savedJobService;
+    private FreelancerSavedJobPostingService savedJobService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -37,18 +36,18 @@ public class FreelancerSavedJobControllerTest {
 
     @Test
     void testSaveJob_Returns200() throws Exception {
-        mockMvc.perform(post("/api/freelancer/saved-jobs/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
+        mockMvc.perform(post("/api/freelancer/saved_job_postings/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
                 .andExpect(status().isOk());
 
-        Mockito.verify(savedJobService).saveJob(freelancerId, jobPostingId);
+        Mockito.verify(savedJobService).saveJobPosting(freelancerId, jobPostingId);
     }
 
     @Test
     void testRemoveJob_Returns200() throws Exception {
-        mockMvc.perform(delete("/api/freelancer/saved-jobs/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
+        mockMvc.perform(delete("/api/freelancer/saved_job_postings/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
                 .andExpect(status().isOk());
 
-        Mockito.verify(savedJobService).removeSavedJob(freelancerId, jobPostingId);
+        Mockito.verify(savedJobService).removeSavedJobPosting(freelancerId, jobPostingId);
     }
 
     @Test
@@ -61,10 +60,10 @@ public class FreelancerSavedJobControllerTest {
         job2.setJobPostingId(2L);
         job2.setTitle("Spring Boot Dev");
 
-        Mockito.when(savedJobService.getSavedJobs(freelancerId))
+        Mockito.when(savedJobService.getSavedJobPostings(freelancerId))
                 .thenReturn(List.of(job1, job2));
 
-        mockMvc.perform(get("/api/freelancer/saved-jobs/{freelancerId}", freelancerId))
+        mockMvc.perform(get("/api/freelancer/saved_job_postings/{freelancerId}", freelancerId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].jobPostingId").value(1))
@@ -72,6 +71,6 @@ public class FreelancerSavedJobControllerTest {
                 .andExpect(jsonPath("$[1].jobPostingId").value(2))
                 .andExpect(jsonPath("$[1].title").value("Spring Boot Dev"));
 
-        Mockito.verify(savedJobService).getSavedJobs(freelancerId);
+        Mockito.verify(savedJobService).getSavedJobPostings(freelancerId);
     }
 }

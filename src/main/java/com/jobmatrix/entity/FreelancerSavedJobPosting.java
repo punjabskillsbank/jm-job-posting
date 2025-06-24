@@ -1,14 +1,20 @@
 package com.jobmatrix.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "freelancer_saved_jobs")
-public class FreelancerSavedJob {
+public class FreelancerSavedJobPosting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,14 +26,6 @@ public class FreelancerSavedJob {
 
     @Column(name = "job_posting_id", nullable = false)
     private Long jobPostingId;
-
-    // Constructors
-    public FreelancerSavedJob() {}
-
-    public FreelancerSavedJob(UUID freelancerId, Long jobPostingId) {
-        this.freelancerId = freelancerId;
-        this.jobPostingId = jobPostingId;
-    }
 
 }
 
