@@ -25,13 +25,7 @@ public class FreelancerSavedJobPostingServiceImpl implements FreelancerSavedJobP
 
         boolean alreadySaved = savedJobRepository.existsByFreelancerIdAndJobPostingId(freelancerId, jobPostingId);
         if (!alreadySaved) {
-            savedJobRepository.save(
-                    FreelancerSavedJobPosting.builder()
-                            .freelancerId(freelancerId)
-                            .jobPostingId(jobPostingId)
-                            .build()
-            );
-
+            savedJobRepository.save(new FreelancerSavedJobPosting(null,freelancerId, jobPosting.getJobPostingId()));
         }
     }
 

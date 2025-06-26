@@ -86,26 +86,19 @@ class FreelancerSavedJobPostingServiceImplTest {
 
     @Test
     void testGetSavedJobPostings_shouldReturnJobPostings() {
-        FreelancerSavedJobPosting saved1 = FreelancerSavedJobPosting.builder()
-                .freelancerId(freelancerId)
-                .jobPostingId(1L)
-                .build();
-
-        FreelancerSavedJobPosting saved2 = FreelancerSavedJobPosting.builder()
-                .freelancerId(freelancerId)
-                .jobPostingId(2L)
-                .build();
+        FreelancerSavedJobPosting saved1 = new FreelancerSavedJobPosting(null, freelancerId, 123L);
+        FreelancerSavedJobPosting saved2 = new FreelancerSavedJobPosting(null, freelancerId, 456L);
 
         JobPosting job1 = new JobPosting();
-        job1.setJobPostingId(1L);
+        job1.setJobPostingId(123L);
 
         JobPosting job2 = new JobPosting();
-        job2.setJobPostingId(2L);
+        job2.setJobPostingId(456L);
 
         Mockito.when(savedJobRepository.findAllByFreelancerId(freelancerId))
                 .thenReturn(List.of(saved1, saved2));
 
-        Mockito.when(jobPostingRepository.findAllById(List.of(1L, 2L)))
+        Mockito.when(jobPostingRepository.findAllById(List.of(123L, 456L)))
                 .thenReturn(List.of(job1, job2));
 
         List<JobPosting> result = service.getSavedJobPostings(freelancerId);
