@@ -1,7 +1,7 @@
 package com.jobmatrix.repository;
 
-import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.entity.JobPostingStatus;
+import com.common.entity.JobPosting;
+import com.common.enums.JobPostingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
