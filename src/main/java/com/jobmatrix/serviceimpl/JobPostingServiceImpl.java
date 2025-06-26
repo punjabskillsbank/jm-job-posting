@@ -69,20 +69,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         jobPosting.setSkills(new HashSet<>(skills));
         jobPosting.setCategory(category);
 
-        //handle questions
-        List<JobPostingQuestionDTO> questionDTOs = jobPostingDTO.getQuestions();
-        if (questionDTOs != null && !questionDTOs.isEmpty()) {
-            if (questionDTOs.size() > 5) {
-                throw new QuestionLimitExceededException();
-            }
-            List<JobPostingQuestion> questions = questionDTOs.stream()
-                    .map(dto -> JobPostingQuestion.builder()
-                            .question(dto.getQuestion())
-                            .jobPosting(jobPosting)
-                            .build())
-                    .toList();
-            jobPosting.setQuestions(questions);
-        }
+        handleJobPostingQuestions(jobPostingDTO, jobPosting);
 
         if (jobPosting.getJobPostingStatus() == null) {
             jobPosting.setJobPostingStatus(JobPostingStatus.IN_REVIEW);
@@ -104,6 +91,21 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
 
         return dto;
+    }
+    private void handleJobPostingQuestions(JobPostingDTO jobPostingDTO, JobPosting jobPosting) {
+        List<JobPostingQuestionDTO> questionDTOs = jobPostingDTO.getQuestions();
+        if (questionDTOs != null && !questionDTOs.isEmpty()) {
+            if (questionDTOs.size() > 5) {
+                throw new QuestionLimitExceededException();
+            }
+            List<JobPostingQuestion> questions = questionDTOs.stream()
+                    .map(dto -> JobPostingQuestion.builder()
+                            .question(dto.getQuestion())
+                            .jobPosting(jobPosting)
+                            .build())
+                    .toList();
+            jobPosting.setQuestions(questions);
+        }
     }
 
     @Override
