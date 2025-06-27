@@ -35,4 +35,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInvalidEnumValueException(InvalidEnumValueException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(QuestionLimitExceededException.class)
+    public ResponseEntity<String> handleQuestionLimitExceedException(QuestionLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

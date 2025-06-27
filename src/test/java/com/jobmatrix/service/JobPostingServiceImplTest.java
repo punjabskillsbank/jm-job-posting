@@ -9,6 +9,7 @@ import com.common.enums.JobPostingStatus;
 import com.common.enums.ProjectDuration;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.jobmatrix.dto.JobPostingDTO;
+import com.jobmatrix.dto.JobPostingQuestionDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.common.dto.CategoryDTO;
 import com.common.dto.SkillDTO;
@@ -22,6 +23,7 @@ import com.jobmatrix.repository.SkillRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.serviceimpl.JobPostingServiceImpl;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
+import com.jobmatrix.exceptionHandling.QuestionLimitExceededException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -254,6 +256,121 @@ public class JobPostingServiceImplTest {
         // Assertions
         assertNotNull(result);
         assertEquals(JobPostingStatus.IN_REVIEW, result.getJobPostingStatus());
+    }
+
+    @Test
+    public void testCreateJobPosting_WithQuestions_Success() {
+        // Prepare skill and category DTOs
+        Set<SkillDTO> skillDTOs = Set.of(
+                SkillDTO.builder().skillId(201L).skill("Python").build()
+        );
+        CategoryDTO categoryDTO = CategoryDTO.builder()
+                .categoryId(2L)
+                .category("Data Science")
+                .speciality("ML")
+                .build();
+
+        // Prepare questions
+        List<JobPostingQuestionDTO> questionDTOs = List.of(
+                JobPostingQuestionDTO.builder().question("What is your ML experience?").build(),
+                JobPostingQuestionDTO.builder().question("Do you have experience with Pandas?").build()
+        );
+
+        jobPostingDTO.setSkills(skillDTOs);
+        jobPostingDTO.setCategory(categoryDTO);
+        jobPostingDTO.setQuestions(questionDTOs);
+
+        // Mock skill entities
+        Skill skill = new Skill();
+        skill.setSkillId(201L);
+        skill.setSkill("Python");
+
+        // Mock category
+        Category category = new Category();
+        category.setCategoryId(2L);
+        category.setCategory("Data Science");
+        category.setSpeciality("ML");
+
+        // Mock JobPosting entity
+        JobPosting jobPosting = new JobPosting();
+        jobPosting.setTitle(jobPostingDTO.getTitle());
+        jobPosting.setDescription(jobPostingDTO.getDescription());
+        jobPosting.setBudgetType(jobPostingDTO.getBudgetType());
+        jobPosting.setHourlyMinRate(jobPostingDTO.getHourlyMinRate());
+        jobPosting.setHourlyMaxRate(jobPostingDTO.getHourlyMaxRate());
+        jobPosting.setProjectDuration(jobPostingDTO.getProjectDuration());
+        jobPosting.setExperienceLevel(jobPostingDTO.getExperienceLevel());
+        jobPosting.setSkills(Set.of(skill));
+        jobPosting.setCategory(category);
+
+        // Mock repositories and mapper
+        when(skillRepository.findAllById(any())).thenReturn(List.of(skill));
+        when(categoryRepository.findById(2L)).thenReturn(Optional.of(category));
+        when(modelMapper.map(jobPostingDTO, JobPosting.class)).thenReturn(jobPosting);
+
+        when(jobPostingRepository.save(any(JobPosting.class))).thenAnswer(invocation -> {
+            JobPosting saved = invocation.getArgument(0);
+            saved.setJobPostingId(5L);
+            saved.setQuestions(saved.getQuestions()); // questions already set by service
+            return saved;
+        });
+
+        JobPostingDTO returnedDTO = JobPostingDTO.builder()
+                .title(jobPosting.getTitle())
+                .description(jobPosting.getDescription())
+                .budgetType(jobPosting.getBudgetType())
+                .hourlyMinRate(jobPosting.getHourlyMinRate())
+                .hourlyMaxRate(jobPosting.getHourlyMaxRate())
+                .projectDuration(jobPosting.getProjectDuration())
+                .experienceLevel(jobPosting.getExperienceLevel())
+                .jobPostingStatus(JobPostingStatus.IN_REVIEW)
+                .category(categoryDTO)
+                .skills(skillDTOs)
+                .questions(questionDTOs)
+                .build();
+
+        when(modelMapper.map(any(JobPosting.class), eq(JobPostingDTO.class))).thenReturn(returnedDTO);
+
+        // Call the service method
+        JobPostingDTO result = jobPostingService.createJobPosting(jobPostingDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getQuestions().size());
+        assertEquals("What is your ML experience?", result.getQuestions().get(0).getQuestion());
+        assertEquals("Do you have experience with Pandas?", result.getQuestions().get(1).getQuestion());
+
+        verify(skillRepository, times(1)).findAllById(any());
+        verify(categoryRepository, times(1)).findById(2L);
+        verify(jobPostingRepository, times(1)).save(any(JobPosting.class));
+    }
+
+    @Test
+    public void testCreateJobPosting_WithMoreThanFiveQuestions_ThrowsException() {
+        List<JobPostingQuestionDTO> questionDTOs = new ArrayList<>();
+        for (int i = 1; i <= 6; i++) {
+            questionDTOs.add(JobPostingQuestionDTO.builder().question("Question " + i).build());
+        }
+        Set<SkillDTO> skillDTOs = Set.of(SkillDTO.builder().skillId(301L).skill("Node.js").build());
+        CategoryDTO categoryDTO = CategoryDTO.builder().categoryId(3L).category("Web Dev").speciality("Backend").build();
+        jobPostingDTO.setSkills(skillDTOs);
+        jobPostingDTO.setCategory(categoryDTO);
+        jobPostingDTO.setQuestions(questionDTOs);
+        Skill skill = new Skill();
+        skill.setSkillId(301L);
+        skill.setSkill("Node.js");
+        Category category = new Category();
+        category.setCategoryId(3L);
+        category.setCategory("Web Dev");
+        category.setSpeciality("Backend");
+        when(skillRepository.findAllById(any())).thenReturn(List.of(skill));
+        when(categoryRepository.findById(3L)).thenReturn(Optional.of(category));
+        when(modelMapper.map(any(JobPostingDTO.class), eq(JobPosting.class)))
+                .thenReturn(new JobPosting()); // Fixed: return dummy JobPosting
+        assertThrows(QuestionLimitExceededException.class, () -> {
+            jobPostingService.createJobPosting(jobPostingDTO);
+        });
+        verify(jobPostingRepository, never()).save(any());
     }
 
 
