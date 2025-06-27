@@ -9,6 +9,8 @@ import com.common.enums.ProjectDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,4 +56,5 @@ public class JobPostingDTO {
 
     private JobPostingStatus jobPostingStatus;
 
+    private List<JobPostingQuestionDTO> questions;
 }

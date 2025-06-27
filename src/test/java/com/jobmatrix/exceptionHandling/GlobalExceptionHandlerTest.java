@@ -38,6 +38,11 @@ class GlobalExceptionHandlerTest {
         public String throwClientNotFoundException() {
             throw new ClientNotFoundException(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         }
+
+        @GetMapping("/test-question-limit-exceed")
+        public String throwQuestionLimitExceedException() {
+            throw new QuestionLimitExceededException();
+        }
     }
 
     @BeforeEach
@@ -81,5 +86,11 @@ class GlobalExceptionHandlerTest {
                 .andExpect(content().string("Client not found with ID: 123e4567-e89b-12d3-a456-426614174000"));
     }
 
-
+    @Test
+    void handleQuestionLimitExceed_ShouldReturnBadRequestWithMessage() throws Exception {
+        mockMvc.perform(get("/test-question-limit-exceed")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Question Limit Exceeded. Maximum 5 questions are allowed."));
+    }
 }
