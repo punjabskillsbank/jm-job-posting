@@ -1,7 +1,6 @@
 package com.jobmatrix.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.entity.JobPosting;
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

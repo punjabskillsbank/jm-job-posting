@@ -3,10 +3,13 @@ package com.jobmatrix.test_utils.factory;
 import com.common.dto.CategoryDTO;
 import com.common.dto.SkillDTO;
 import com.common.entity.Category;
+import com.common.entity.JobPosting;
+import com.common.enums.BudgetType;
+import com.common.enums.ExperienceLevel;
+import com.common.enums.JobPostingStatus;
+import com.common.enums.ProjectDuration;
 import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.*;
-
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
