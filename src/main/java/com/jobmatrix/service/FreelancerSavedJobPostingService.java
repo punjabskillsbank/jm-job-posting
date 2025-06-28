@@ -1,5 +1,7 @@
 package com.jobmatrix.service;
 
+import com.common.entity.JobPosting;
+
 import java.util.List;
 import java.util.UUID;
 

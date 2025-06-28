@@ -1,5 +1,6 @@
 package com.jobmatrix.controller;
 
+import com.common.entity.JobPosting;
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

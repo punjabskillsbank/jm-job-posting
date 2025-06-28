@@ -1,6 +1,8 @@
 package com.jobmatrix.controller;
 
+import com.common.entity.JobPosting;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,7 @@ public class FreelancerSavedJobPostingControllerTest {
     private final Long jobPostingId = 1L;
 
     @Test
-    void testSaveJob_Returns200() throws Exception {
+    void testSaveJobPosting_Returns200() throws Exception {
         mockMvc.perform(post("/api/freelancer/saved_job_postings/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
                 .andExpect(status().isOk());
 
@@ -42,7 +44,19 @@ public class FreelancerSavedJobPostingControllerTest {
     }
 
     @Test
-    void testRemoveJob_Returns200() throws Exception {
+    void testSaveJobPosting_Returns404_WhenJobPostingNotFound() throws Exception {
+        Mockito.doThrow(new JobPostingNotFoundException(jobPostingId))
+                .when(savedJobService).saveJobPosting(freelancerId, jobPostingId);
+
+        mockMvc.perform(post("/api/freelancer/saved_job_postings/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("JobPosting not found at given jobPostingId: " + jobPostingId));
+
+        Mockito.verify(savedJobService).saveJobPosting(freelancerId, jobPostingId);
+    }
+
+    @Test
+    void testRemoveJobPosting_Returns200() throws Exception {
         mockMvc.perform(delete("/api/freelancer/saved_job_postings/{freelancerId}/{jobPostingId}", freelancerId, jobPostingId))
                 .andExpect(status().isOk());
 
@@ -50,7 +64,7 @@ public class FreelancerSavedJobPostingControllerTest {
     }
 
     @Test
-    void testGetSavedJobs_ReturnsList() throws Exception {
+    void testGetSavedJobPostings_ReturnsList() throws Exception {
         JobPosting job1 = new JobPosting();
         job1.setJobPostingId(1L);
         job1.setTitle("Java Dev");
