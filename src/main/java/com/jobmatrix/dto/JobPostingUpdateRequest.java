@@ -1,8 +1,8 @@
 package com.jobmatrix.dto;
 
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.ProjectDuration;
+import com.common.enums.BudgetType;
+import com.common.enums.ExperienceLevel;
+import com.common.enums.ProjectDuration;
 import lombok.*;
 
 @Getter

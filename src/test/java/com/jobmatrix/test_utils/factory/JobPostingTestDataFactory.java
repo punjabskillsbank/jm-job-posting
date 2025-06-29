@@ -1,11 +1,17 @@
 package com.jobmatrix.test_utils.factory;
 
 import com.common.dto.CategoryDTO;
+import com.common.dto.JobPostingDTO;
 import com.common.dto.SkillDTO;
-import com.jobmatrix.dto.JobPostingDTO;
+import com.common.entity.Category;
+import com.common.entity.JobPosting;
+import com.common.enums.BudgetType;
+import com.common.enums.ExperienceLevel;
+import com.common.enums.JobPostingStatus;
+import com.common.enums.ProjectDuration;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -93,8 +99,8 @@ public class JobPostingTestDataFactory {
                 .categoryId(categoryId)
                 .category(category)
                 .speciality(speciality)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
     }
 

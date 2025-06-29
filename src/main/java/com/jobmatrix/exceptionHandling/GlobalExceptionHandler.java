@@ -2,6 +2,7 @@ package com.jobmatrix.exceptionHandling;
 
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.exceptionHandling.InvalidEnumValueException;
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

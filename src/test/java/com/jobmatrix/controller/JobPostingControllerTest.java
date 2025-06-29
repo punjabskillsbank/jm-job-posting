@@ -1,12 +1,12 @@
 package com.jobmatrix.controller;
 
+import com.common.dto.JobPostingDTO;
+import com.common.entity.JobPosting;
+import com.common.enums.BudgetType;
+import com.common.enums.ExperienceLevel;
+import com.common.enums.JobPostingStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
-import com.jobmatrix.entity.BudgetType;
-import com.jobmatrix.entity.ExperienceLevel;
-import com.jobmatrix.entity.JobPosting;
-import com.jobmatrix.entity.JobPostingStatus;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
 import org.junit.jupiter.api.Test;
