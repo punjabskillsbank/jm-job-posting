@@ -1,5 +1,7 @@
 package com.jobmatrix.service;
 
+import com.common.dto.JobPostingDTO;
+import com.common.dto.JobPostingQuestionDTO;
 import com.common.entity.Category;
 import com.common.entity.JobPosting;
 import com.common.entity.Skill;
@@ -8,15 +10,14 @@ import com.common.enums.ExperienceLevel;
 import com.common.enums.JobPostingStatus;
 import com.common.enums.ProjectDuration;
 import com.common.exceptionHandling.ClientNotFoundException;
-import com.jobmatrix.dto.JobPostingDTO;
-import com.jobmatrix.dto.JobPostingQuestionDTO;
+
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.common.dto.CategoryDTO;
 import com.common.dto.SkillDTO;
 
 import com.common.entity.Client;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
-import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
 import com.jobmatrix.repository.SkillRepository;

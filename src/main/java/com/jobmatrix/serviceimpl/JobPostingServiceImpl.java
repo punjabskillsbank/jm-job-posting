@@ -1,5 +1,7 @@
 package com.jobmatrix.serviceimpl;
 
+import com.common.dto.JobPostingDTO;
+import com.common.dto.JobPostingQuestionDTO;
 import com.common.entity.Category;
 import com.common.entity.JobPosting;
 import com.common.entity.JobPostingQuestion;
@@ -7,11 +9,10 @@ import com.common.entity.Skill;
 import com.common.enums.JobPostingStatus;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
-import com.jobmatrix.dto.JobPostingDTO;
-import com.jobmatrix.dto.JobPostingQuestionDTO;
+
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
-import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 
 import com.jobmatrix.exceptionHandling.QuestionLimitExceededException;
 

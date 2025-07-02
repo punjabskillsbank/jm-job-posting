@@ -1,6 +1,7 @@
 package com.jobmatrix.exceptionHandling;
 
 import com.common.exceptionHandling.ClientNotFoundException;
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

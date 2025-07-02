@@ -1,8 +1,9 @@
 package com.jobmatrix.controller;
 
 import com.common.entity.JobPosting;
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
