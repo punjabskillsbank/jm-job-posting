@@ -9,13 +9,10 @@ import com.common.entity.Skill;
 import com.common.enums.JobPostingStatus;
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.dto.SkillDTO;
-
 import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.exceptionHandling.CategoryNotFoundException;
-
 import com.jobmatrix.exceptionHandling.QuestionLimitExceededException;
-
 import com.jobmatrix.exceptionHandling.SkillNotFoundException;
 import com.jobmatrix.repository.CategoryRepository;
 import com.jobmatrix.repository.ClientRepository;
