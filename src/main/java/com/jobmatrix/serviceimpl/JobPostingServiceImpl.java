@@ -109,9 +109,11 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public List<JobPosting> getOpenJobPostings() {
-        return jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN);
-
+    public List<JobPostingDTO> getOpenJobPostings() {
+        List<JobPosting> openJobs = jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN);
+        return openJobs.stream()
+                .map(job -> modelMapper.map(job, JobPostingDTO.class))
+                .toList();
     }
 
     @Override
