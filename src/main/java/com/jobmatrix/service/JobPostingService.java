@@ -1,8 +1,8 @@
 package com.jobmatrix.service;
 
+import com.common.dto.JobPostingDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
-import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 
 import java.util.List;

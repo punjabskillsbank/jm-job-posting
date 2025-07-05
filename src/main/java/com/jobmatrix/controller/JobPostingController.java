@@ -1,9 +1,9 @@
 package com.jobmatrix.controller;
 
+import com.common.dto.JobPostingDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.common.util.EnumUtils;
-import com.jobmatrix.dto.JobPostingDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;

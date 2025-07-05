@@ -1,8 +1,8 @@
 package com.jobmatrix.controller;
 
 import com.common.entity.JobPosting;
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.List;
 import java.util.UUID;
 
