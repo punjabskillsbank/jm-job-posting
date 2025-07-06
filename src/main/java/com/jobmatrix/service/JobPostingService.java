@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface JobPostingService {
     JobPostingDTO createJobPosting(JobPostingDTO jobPostingDTO);
-    List<JobPosting> getOpenJobPostings();
+    List<JobPostingDTO> getOpenJobPostings();
     JobPosting getJobPostingById(Long jobPostingId);
     List<JobPosting> getJobPostingsByClientId(UUID clientId);
     Map<String, List<String>> getCategories();

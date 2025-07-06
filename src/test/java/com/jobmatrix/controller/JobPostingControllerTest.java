@@ -55,17 +55,15 @@ public class JobPostingControllerTest {
     @Test
     void testGetOpenJobPostings() throws Exception {
         UUID clientId = UUID.randomUUID();
-        List<JobPosting> mockJobPostings = List.of(
-                JobPostingTestDataFactory.createJobPostingEntity(clientId),
-                JobPostingTestDataFactory.createJobPostingEntity(clientId)
+        List<JobPostingDTO> mockJobPostings = List.of(
+                JobPostingTestDataFactory.createJobPostingDTO(clientId),
+                JobPostingTestDataFactory.createJobPostingDTO(clientId)
         );
-
         Mockito.when(jobPostingService.getOpenJobPostings()).thenReturn(mockJobPostings);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/open_job_postings"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].jobPostingId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Sample Job"));
     }
 

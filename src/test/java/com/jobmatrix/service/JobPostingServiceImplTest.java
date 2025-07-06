@@ -374,30 +374,35 @@ public class JobPostingServiceImplTest {
 
     @Test
     public void testGetOpenJobPostings_WhenSomeAreOpen() {
-        JobPosting openJob1 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
-        JobPosting openJob2 = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
+        UUID clientId = UUID.randomUUID();
+        JobPosting openJob1 = JobPostingTestDataFactory.createJobPostingEntity(clientId);
+        JobPosting openJob2 = JobPostingTestDataFactory.createJobPostingEntity(clientId);
         openJob1.setJobPostingStatus(JobPostingStatus.OPEN);
         openJob2.setJobPostingStatus(JobPostingStatus.OPEN);
         when(jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN))
                 .thenReturn(List.of(openJob1, openJob2));
-        List<JobPosting> result = jobPostingService.getOpenJobPostings();
+        when(modelMapper.map(openJob1, JobPostingDTO.class)).thenReturn(
+                JobPostingTestDataFactory.createJobPostingDTO(openJob1.getClientId())
+        );
+        when(modelMapper.map(openJob2, JobPostingDTO.class)).thenReturn(
+                JobPostingTestDataFactory.createJobPostingDTO(openJob2.getClientId())
+        );
+        List<JobPostingDTO> result = jobPostingService.getOpenJobPostings();
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(job -> job.getJobPostingStatus() == JobPostingStatus.OPEN));
-
+        assertTrue(result.stream().allMatch(dto -> dto.getJobPostingStatus() == JobPostingStatus.OPEN));
         verify(jobPostingRepository).findByJobPostingStatus(JobPostingStatus.OPEN);
+        verify(modelMapper, times(2)).map(any(JobPosting.class), eq(JobPostingDTO.class));
     }
+
 
     @Test
     public void testGetOpenJobPostings_WhenNoneAreOpen() {
         when(jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN))
                 .thenReturn(List.of());
-
-        List<JobPosting> result = jobPostingService.getOpenJobPostings();
-
+        List<JobPostingDTO> result = jobPostingService.getOpenJobPostings();
         assertNotNull(result);
         assertTrue(result.isEmpty());
-
         verify(jobPostingRepository).findByJobPostingStatus(JobPostingStatus.OPEN);
     }
 
@@ -410,7 +415,6 @@ public class JobPostingServiceImplTest {
         JobPosting inProgressJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
         JobPosting closedJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
         JobPosting completedJob = JobPostingTestDataFactory.createJobPostingEntity(UUID.randomUUID());
-
         openJob1.setJobPostingStatus(JobPostingStatus.OPEN);
         openJob2.setJobPostingStatus(JobPostingStatus.OPEN);
         draftJob.setJobPostingStatus(JobPostingStatus.DRAFT);
@@ -418,17 +422,20 @@ public class JobPostingServiceImplTest {
         inProgressJob.setJobPostingStatus(JobPostingStatus.IN_PROGRESS);
         closedJob.setJobPostingStatus(JobPostingStatus.CLOSED);
         completedJob.setJobPostingStatus(JobPostingStatus.COMPLETED);
-
         when(jobPostingRepository.findByJobPostingStatus(JobPostingStatus.OPEN))
                 .thenReturn(List.of(openJob1, openJob2));
-
-        List<JobPosting> result = jobPostingService.getOpenJobPostings();
-
+        when(modelMapper.map(openJob1, JobPostingDTO.class)).thenReturn(
+                JobPostingTestDataFactory.createJobPostingDTO(openJob1.getClientId())
+        );
+        when(modelMapper.map(openJob2, JobPostingDTO.class)).thenReturn(
+                JobPostingTestDataFactory.createJobPostingDTO(openJob2.getClientId())
+        );
+        List<JobPostingDTO> result = jobPostingService.getOpenJobPostings();
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(job -> job.getJobPostingStatus() == JobPostingStatus.OPEN));
-
+        assertTrue(result.stream().allMatch(dto -> dto.getJobPostingStatus() == JobPostingStatus.OPEN));
         verify(jobPostingRepository, times(1)).findByJobPostingStatus(JobPostingStatus.OPEN);
+        verify(modelMapper, times(2)).map(any(JobPosting.class), eq(JobPostingDTO.class));
     }
 
     @Test

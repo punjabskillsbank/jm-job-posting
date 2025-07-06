@@ -31,10 +31,11 @@ public class JobPostingController {
     }
 
     @GetMapping("/open_job_postings")
-    public ResponseEntity<List<JobPosting>> getOpenJobPostings() {
-        List<JobPosting> openJobPostings = jobPostingService.getOpenJobPostings();
+    public ResponseEntity<List<JobPostingDTO>> getOpenJobPostings() {
+        List<JobPostingDTO> openJobPostings = jobPostingService.getOpenJobPostings();
         return ResponseEntity.ok(openJobPostings);
     }
+
 
     @GetMapping("/{jobPostingId}")
     public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobPostingId){
