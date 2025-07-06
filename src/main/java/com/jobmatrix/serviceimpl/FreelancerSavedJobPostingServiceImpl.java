@@ -1,8 +1,9 @@
 package com.jobmatrix.serviceimpl;
 
 import com.common.entity.JobPosting;
+import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.jobmatrix.entity.FreelancerSavedJobPosting;
-import com.jobmatrix.exceptionHandling.JobPostingNotFoundException;
+
 import com.jobmatrix.repository.FreelancerSavedJobRepository;
 import com.jobmatrix.repository.JobPostingRepository;
 import com.jobmatrix.service.FreelancerSavedJobPostingService;
