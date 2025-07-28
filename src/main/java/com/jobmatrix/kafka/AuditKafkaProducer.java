@@ -39,9 +39,9 @@ public class AuditKafkaProducer {
         kafkaTemplate.send(topic, message)
             .whenComplete((result, ex) -> {
                 if (ex == null) {
-                    log.info("✅ Successfully sent audit message to topic '{}': {}", topic, message);
+                    log.info("Successfully sent audit message to topic '{}': {}", topic, message);
                 } else {
-                    log.error("❌ Failed to send audit message to topic '{}': {}", topic, message, ex);
+                    log.error("Failed to send audit message to topic '{}': {}", topic, message, ex);
                 }
             });
     }
