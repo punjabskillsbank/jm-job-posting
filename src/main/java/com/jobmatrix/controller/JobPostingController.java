@@ -9,6 +9,7 @@ import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class JobPostingController {
     @Autowired
     private JobPostingService jobPostingService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @PostMapping("/create_job_posting")
     public ResponseEntity<JobPostingDTO> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
         JobPostingDTO createdJobPostingDTO = jobPostingService.createJobPosting(jobPostingDTO);
@@ -39,9 +43,11 @@ public class JobPostingController {
 
 
     @GetMapping("/{jobPostingId}")
-    public ResponseEntity<JobPosting> getJobPostingById(@PathVariable Long jobPostingId){
+    public ResponseEntity<JobPostingDTO> getJobPostingById(@PathVariable Long jobPostingId) {
         JobPosting jobPosting = jobPostingService.getJobPostingById(jobPostingId);
-        return ResponseEntity.ok(jobPosting);
+
+        JobPostingDTO jobPostingDTO = modelMapper.map(jobPosting, JobPostingDTO.class);
+        return ResponseEntity.ok(jobPostingDTO);
     }
 
     @GetMapping("/client/{clientId}")
