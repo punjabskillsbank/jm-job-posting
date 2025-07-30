@@ -4,6 +4,7 @@ import com.common.dto.JobPostingDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.common.util.EnumUtils;
+import com.jobmatrix.dto.JobAttachmentUpdateDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -72,6 +73,15 @@ public class JobPostingController {
         List<JobPostingStatus> statusList = EnumUtils.parseEnumList(statuses, JobPostingStatus.class);
         Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/{jobPostingId}/attachments")
+    public ResponseEntity<Void> addAttachmentsToJobPosting(
+            @PathVariable Long jobPostingId,
+            @RequestBody JobAttachmentUpdateDTO dto
+    ) {
+        jobPostingService.saveJobAttachments(jobPostingId, dto.getAttachmentUrls());
+        return ResponseEntity.ok().build();
     }
 
 } 

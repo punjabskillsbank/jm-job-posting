@@ -67,6 +67,8 @@ public class JobPostingServiceImpl implements JobPostingService {
         jobPosting.setSkills(new HashSet<>(skills));
         jobPosting.setCategory(category);
 
+        jobPosting.setAttachmentUrls(jobPostingDTO.getAttachmentUrls());
+
         handleJobPostingQuestions(jobPostingDTO, jobPosting);
 
         if (jobPosting.getJobPostingStatus() == null) {
@@ -185,4 +187,14 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
         return result;
     }
+
+    @Override
+    public void saveJobAttachments(Long jobPostingId, List<String> s3Keys) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));
+
+        jobPosting.getAttachmentUrls().addAll(s3Keys);
+        jobPostingRepository.save(jobPosting);
+    }
+
 }
