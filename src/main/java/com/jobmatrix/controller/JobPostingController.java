@@ -63,12 +63,13 @@ public class JobPostingController {
     }
 
     @PatchMapping("/{job_posting_id}")
-    public ResponseEntity<JobPosting> updateJobPosting(
+    public ResponseEntity<JobPostingDTO> updateJobPosting(
             @PathVariable Long job_posting_id,
             @Valid @RequestBody JobPostingUpdateRequest jobPostingUpdateRequest
     ){
         JobPosting updatedJobPosting = jobPostingService.updateJobPosting(job_posting_id, jobPostingUpdateRequest);
-        return ResponseEntity.ok(updatedJobPosting);
+        JobPostingDTO jobPostingDTO = modelMapper.map(updatedJobPosting, JobPostingDTO.class);
+        return ResponseEntity.ok(jobPostingDTO);
     }
 
     @GetMapping("/{clientId}/statuses/{statuses}")
