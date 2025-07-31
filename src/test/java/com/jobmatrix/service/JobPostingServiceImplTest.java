@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -256,6 +257,87 @@ public class JobPostingServiceImplTest {
         assertEquals(JobPostingStatus.IN_REVIEW, result.getJobPostingStatus());
     }
 
+    @Test
+    public void testGetAllSkills_ReturnsListOfSkillDTOs() {
+        // Arrange
+        List<Skill> skills = List.of(
+                Skill.builder().skillId(1L).skill("Java").build(),
+                Skill.builder().skillId(2L).skill("Spring Boot").build()
+        );
+        
+        when(skillRepository.findAll()).thenReturn(skills);
+        when(modelMapper.map(any(Skill.class), eq(SkillDTO.class)))
+                .thenAnswer(invocation -> {
+                    Skill skill = invocation.getArgument(0);
+                    return SkillDTO.builder()
+                            .skillId(skill.getSkillId())
+                            .skill(skill.getSkill())
+                            .build();
+                });
+        
+        // Act
+        List<SkillDTO> result = jobPostingService.getAllSkills();
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Java", result.get(0).getSkill());
+        assertEquals("Spring Boot", result.get(1).getSkill());
+        
+        verify(skillRepository, times(1)).findAll();
+        verify(modelMapper, times(2)).map(any(Skill.class), eq(SkillDTO.class));
+    }
+    
+    @Test
+    public void testGetAllSkills_ReturnsEmptyList_WhenNoSkillsFound() {
+        // Arrange
+        when(skillRepository.findAll()).thenReturn(Collections.emptyList());
+        
+        // Act
+        List<SkillDTO> result = jobPostingService.getAllSkills();
+        
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(skillRepository, times(1)).findAll();
+        verifyNoMoreInteractions(modelMapper);
+    }
+    
+    @Test
+    public void testGetAllSkills_ReturnsCorrectSkillDTOs() {
+        // Arrange
+        Skill javaSkill = Skill.builder().skillId(1L).skill("Java").build();
+        Skill springSkill = Skill.builder().skillId(2L).skill("Spring Boot").build();
+        List<Skill> skills = List.of(javaSkill, springSkill);
+        
+        when(skillRepository.findAll()).thenReturn(skills);
+        
+        // Set up ModelMapper to return DTOs with the same IDs and names as the entities
+        when(modelMapper.map(eq(javaSkill), eq(SkillDTO.class)))
+                .thenReturn(SkillDTO.builder().skillId(1L).skill("Java").build());
+        when(modelMapper.map(eq(springSkill), eq(SkillDTO.class)))
+                .thenReturn(SkillDTO.builder().skillId(2L).skill("Spring Boot").build());
+        
+        // Act
+        List<SkillDTO> result = jobPostingService.getAllSkills();
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        
+        // Verify the first skill
+        assertEquals(1L, result.get(0).getSkillId());
+        assertEquals("Java", result.get(0).getSkill());
+        
+        // Verify the second skill
+        assertEquals(2L, result.get(1).getSkillId());
+        assertEquals("Spring Boot", result.get(1).getSkill());
+        
+        verify(skillRepository, times(1)).findAll();
+        verify(modelMapper, times(1)).map(eq(javaSkill), eq(SkillDTO.class));
+        verify(modelMapper, times(1)).map(eq(springSkill), eq(SkillDTO.class));
+    }
+    
     @Test
     public void testCreateJobPosting_WithQuestions_Success() {
         // Prepare skill and category DTOs
