@@ -18,10 +18,5 @@ public interface JobPostingService {
     Map<String, List<String>> getCategories();
     JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest);
     Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList);
-    
-    /**
-     * Retrieves all available skills
-     * @return List of all skills as DTOs
-     */
     List<SkillDTO> getAllSkills();
 }
