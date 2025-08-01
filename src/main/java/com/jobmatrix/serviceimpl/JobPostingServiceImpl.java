@@ -185,4 +185,12 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
         return result;
     }
+    
+    @Override
+    public List<SkillDTO> getAllSkills() {
+        List<Skill> skills = skillRepository.findAll();
+        return skills.stream()
+                .map(skill -> modelMapper.map(skill, SkillDTO.class))
+                .collect(Collectors.toList());
+    }
 }

@@ -1,6 +1,7 @@
 package com.jobmatrix.controller;
 
 import com.common.dto.JobPostingDTO;
+import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.BudgetType;
 import com.common.enums.ExperienceLevel;
@@ -22,6 +23,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.*;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 @WebMvcTest(JobPostingController.class)
 public class JobPostingControllerTest {
@@ -223,4 +227,29 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.content().string("Invalid value 'INVALID_STATUS' for enum: JobPostingStatus"));
     }
+
+    @Test
+    void testGetAllSkills_ReturnsListOfSkills() throws Exception {
+        // Arrange
+        List<SkillDTO> mockSkills = List.of(
+                SkillDTO.builder().skillId(1L).skill("Java").build(),
+                SkillDTO.builder().skillId(2L).skill("Spring Boot").build()
+        );
+
+        when(jobPostingService.getAllSkills()).thenReturn(mockSkills);
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/skills")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].skillId").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].skill").value("Java"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].skillId").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].skill").value("Spring Boot"));
+
+        verify(jobPostingService, times(1)).getAllSkills();
+    }
+
+
 }
