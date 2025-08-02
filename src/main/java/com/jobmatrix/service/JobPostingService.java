@@ -1,6 +1,7 @@
 package com.jobmatrix.service;
 
 import com.common.dto.JobPostingDTO;
+import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
@@ -17,5 +18,6 @@ public interface JobPostingService {
     Map<String, List<String>> getCategories();
     JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest);
     Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList);
+    List<SkillDTO> getAllSkills();
     void saveJobAttachments(Long jobPostingId, List<String> s3Keys);
 }

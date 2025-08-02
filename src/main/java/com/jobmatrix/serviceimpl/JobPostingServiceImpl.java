@@ -189,6 +189,14 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
+    public List<SkillDTO> getAllSkills() {
+        List<Skill> skills = skillRepository.findAll();
+        return skills.stream()
+                .map(skill -> modelMapper.map(skill, SkillDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void saveJobAttachments(Long jobPostingId, List<String> s3Keys) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));

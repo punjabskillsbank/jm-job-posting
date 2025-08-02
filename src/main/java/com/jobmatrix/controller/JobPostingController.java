@@ -1,6 +1,7 @@
 package com.jobmatrix.controller;
 
 import com.common.dto.JobPostingDTO;
+import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.common.util.EnumUtils;
@@ -80,6 +81,12 @@ public class JobPostingController {
         List<JobPostingStatus> statusList = EnumUtils.parseEnumList(statuses, JobPostingStatus.class);
         Map<JobPostingStatus, List<JobPostingDTO>> result = jobPostingService.getJobPostingsByStatuses(clientId, statusList);
         return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/skills")
+    public ResponseEntity<List<SkillDTO>> getAllSkills() {
+        List<SkillDTO> skills = jobPostingService.getAllSkills();
+        return ResponseEntity.ok(skills);
     }
 
     @PostMapping("/{jobPostingId}/attachments")
