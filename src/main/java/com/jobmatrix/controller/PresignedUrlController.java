@@ -1,13 +1,13 @@
 package com.jobmatrix.controller;
 
+import com.jobmatrix.dto.PresignedUrlRequestDTO;
 import com.jobmatrix.dto.PresignedUrlResponse;
 import com.jobmatrix.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/presigned_url")
@@ -16,9 +16,15 @@ public class PresignedUrlController {
 
     private final FileService fileService;
 
-    @GetMapping("/upload/job_attachment")
-    public ResponseEntity<PresignedUrlResponse> generateUploadUrl(@RequestParam String jobId, @RequestParam String contentType) {
-        PresignedUrlResponse presignedUrlResponse = fileService.generateJobAttachementUrl(jobId, contentType);
-        return ResponseEntity.ok(presignedUrlResponse);
+    @PostMapping("/upload/job_attachment")
+    public ResponseEntity<List<PresignedUrlResponse>> generateUploadUrlsForJobAttachments(
+            @RequestBody PresignedUrlRequestDTO request) {
+
+        List<PresignedUrlResponse> responses = fileService.generateMultipleJobAttachmentUrls(
+                String.valueOf(request.getJob_posting_id()),
+                request.getFile()
+        );
+        return ResponseEntity.ok(responses);
     }
+
 }
