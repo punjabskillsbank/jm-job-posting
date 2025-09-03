@@ -1,8 +1,9 @@
 package com.jobmatrix.service;
 
-import com.jobmatrix.dto.PresignedUrlResponse;
+import com.common.dto.PresignedUrlResponseDTO;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface FileService {
 
@@ -13,6 +14,6 @@ public interface FileService {
      * @param originalFilenames the MIME type of the file
      * @return an array containing [uploadUrl, downloadUrl]
      */
-    List<PresignedUrlResponse> generateMultipleJobAttachmentUrls(String jobId, List<String> originalFilenames);
+    Map<String, PresignedUrlResponseDTO> generateMultipleJobAttachmentUrls(String jobId, Set<String> originalFilenames);
 
 }

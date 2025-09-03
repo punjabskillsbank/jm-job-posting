@@ -5,7 +5,7 @@ import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.common.util.EnumUtils;
-import com.jobmatrix.dto.JobAttachmentUpdateDTO;
+import com.common.dto.JobAttachmentUpdateDTO;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;

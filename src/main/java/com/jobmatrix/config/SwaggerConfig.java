@@ -17,6 +17,7 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("API documentation for the Job Posting Microservice"))
                 .servers(List.of(new Server().url("http://localhost:8080").description("Local Server"),
-                        new Server().url("https://localhost:8082").description("Live")));
+                        new Server().url("http://localhost:8082").description("Live"),
+                        new Server().url("http://localhost:8081").description("JobPosting")));
     }
 }

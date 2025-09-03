@@ -1,11 +1,11 @@
 package com.jobmatrix.serviceimpl;
 
-import com.jobmatrix.dto.PresignedUrlResponse;
+import com.common.dto.PresignedUrlResponseDTO;
+import com.common.util.S3PresignedURLUtil;
 import com.jobmatrix.exceptionHandling.InvalidFileTypeException;
 import com.jobmatrix.service.FileService;
-import com.jobmatrix.service.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -15,23 +15,30 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-    private final S3Service s3Service;
+    private final S3PresignedURLUtil s3Service;
 
-    // Allowed extensions
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-            ".pdf", ".doc", ".docx", ".jpg",".png", ".webp", ".mp4",
-            ".mp3", ".wav", ".ppt", ".pptx"
+    private static final Set<String> NOT_ALLOWED_EXTENSIONS = Set.of(
+            ".exe", ".msi", ".bat", ".cmd", ".com", ".scr", ".pif", ".cpl", ".gadget",
+            ".sh", ".bash", ".zsh", ".ps1", ".vbs", ".js", ".jse", ".wsf", ".wsh", ".reg",
+            ".dll", ".so", ".dmg", ".pkg", ".jar", ".class",
+            ".iso", ".img", ".vhd", ".vhdx",
+            ".lnk", ".url",
+            ".xlsm", ".docm", ".pptm"
     );
 
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
+
     @Override
-    public List<PresignedUrlResponse> generateMultipleJobAttachmentUrls(String jobId, List<String> originalFilenames) {
-        List<PresignedUrlResponse> urls = new ArrayList<>();
+    public Map<String, PresignedUrlResponseDTO> generateMultipleJobAttachmentUrls(String jobId, Set<String> originalFilenames) {
+        Map<String, PresignedUrlResponseDTO> urls = new HashMap<>();
+
 
         for (String fileName : originalFilenames) {
             String extension = getExtensionFromFileName(fileName).toLowerCase();
 
             //Validate extension
-            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            if (NOT_ALLOWED_EXTENSIONS.contains(extension)) {
                 throw new InvalidFileTypeException(extension);
             }
 
@@ -40,8 +47,8 @@ public class FileServiceImpl implements FileService {
 
             String contentType = guessContentType(extension);
 
-            URL presignedUrl = s3Service.generatePresignedUploadUrl(s3Key, contentType);
-            urls.add(new PresignedUrlResponse(presignedUrl, s3Key));
+            URL presignedUrl = s3Service.generatePresignedUploadUrl(s3Key, contentType,bucketName);
+            urls.put(fileName, new PresignedUrlResponseDTO(presignedUrl, s3Key));
         }
 
         return urls;
@@ -69,7 +76,11 @@ public class FileServiceImpl implements FileService {
         };
     }
 
+    // Replace spaces and reserved characters (/ \ ? % * : | " < > #) with underscore
+    // these characters may break the URL during presigned upload as they have special meaning in the URLS
+    // So replacing them make the file name remains safe for uploading to S3.
     private String sanitizeFileName(String fileName) {
-        return fileName.trim().replaceAll("[^a-zA-Z0-9._-]", "_");
+        return fileName.trim().replaceAll("[\\s/\\\\?%*:|\"<>#]", "_");
     }
+
 }
