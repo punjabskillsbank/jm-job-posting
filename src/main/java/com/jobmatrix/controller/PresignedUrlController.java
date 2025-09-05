@@ -1,8 +1,8 @@
 package com.jobmatrix.controller;
 
 import com.common.dto.PresignedUrlResponseDTO;
-import com.common.dto.PresignedUrlRequestDTO;
-import com.jobmatrix.service.FileService;
+import com.jobmatrix.dto.PresignedUrlRequestDTO;
+import com.common.util.S3FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PresignedUrlController {
 
-    private final FileService fileService;
+    private final S3FileUtil fileService;
 
     @PostMapping("/upload/job_attachment")
     public ResponseEntity<Map<String, PresignedUrlResponseDTO>> generateUploadUrlsForJobAttachments(
@@ -22,7 +22,8 @@ public class PresignedUrlController {
 
         Map<String, PresignedUrlResponseDTO> responses = fileService.generateMultipleJobAttachmentUrls(
                 String.valueOf(request.getJob_posting_id()),
-                request.getFileNames()
+                request.getFileNames(),
+                "job-attachments/"
         );
         return ResponseEntity.ok(responses);
     }
