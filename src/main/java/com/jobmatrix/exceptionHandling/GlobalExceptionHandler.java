@@ -2,6 +2,7 @@ package com.jobmatrix.exceptionHandling;
 
 import com.common.exceptionHandling.ClientNotFoundException;
 import com.common.exceptionHandling.InvalidEnumValueException;
+import com.common.exceptionHandling.InvalidFileTypeException;
 import com.common.exceptionHandling.JobPostingNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(QuestionLimitExceededException.class)
     public ResponseEntity<String> handleQuestionLimitExceedException(QuestionLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<String> handleInvalidFileTypeException(InvalidFileTypeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

@@ -67,6 +67,8 @@ public class JobPostingServiceImpl implements JobPostingService {
         jobPosting.setSkills(new HashSet<>(skills));
         jobPosting.setCategory(category);
 
+        jobPosting.setAttachmentS3Keys(jobPostingDTO.getAttachmentS3Keys());
+
         handleJobPostingQuestions(jobPostingDTO, jobPosting);
 
         if (jobPosting.getJobPostingStatus() == null) {
@@ -185,7 +187,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
         return result;
     }
-    
+
     @Override
     public List<SkillDTO> getAllSkills() {
         List<Skill> skills = skillRepository.findAll();
@@ -193,4 +195,14 @@ public class JobPostingServiceImpl implements JobPostingService {
                 .map(skill -> modelMapper.map(skill, SkillDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void saveJobAttachments(Long jobPostingId, List<String> s3Keys) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new JobPostingNotFoundException(jobPostingId));
+
+        jobPosting.getAttachmentS3Keys().addAll(s3Keys);
+        jobPostingRepository.save(jobPosting);
+    }
+
 }

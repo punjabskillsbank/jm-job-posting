@@ -1,14 +1,17 @@
 package com.jobmatrix.controller;
 
 import com.common.dto.JobPostingDTO;
+import com.common.dto.PresignedUrlResponseDTO;
 import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.JobPostingStatus;
 import com.common.util.EnumUtils;
+import com.common.util.S3FileUtil;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,11 +19,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/job_postings")
 @Tag(name = "Job Posting ", description = "Operations related to job posting ")
+@RequiredArgsConstructor
 public class JobPostingController {
 
     @Autowired
@@ -28,6 +33,8 @@ public class JobPostingController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    private final S3FileUtil s3FileUtil;
 
     @PostMapping("/create_job_posting")
     public ResponseEntity<JobPostingDTO> createJobPosting(@RequestBody JobPostingDTO jobPostingDTO) {
@@ -88,4 +95,25 @@ public class JobPostingController {
         return ResponseEntity.ok(skills);
     }
 
+    @PostMapping("/{jobPostingId}/presigned_urls")
+    public ResponseEntity<Map<String, PresignedUrlResponseDTO>> generateUploadUrlsForJobAttachments(
+            @PathVariable Long jobPostingId,
+            @RequestBody Set<String> fileNames) {
+
+        Map<String, PresignedUrlResponseDTO> responses = s3FileUtil.generateMultipleJobAttachmentUrls(
+                String.valueOf(jobPostingId),
+                fileNames,
+                "job-attachments/"
+        );
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/{jobPostingId}/attachments")
+    public ResponseEntity<Void> addAttachmentsToJobPosting(
+            @PathVariable Long jobPostingId,
+            @RequestBody List<String> attachmentS3Keys
+    ) {
+        jobPostingService.saveJobAttachments(jobPostingId, attachmentS3Keys);
+        return ResponseEntity.ok().build();
+    }
 } 

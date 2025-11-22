@@ -1,15 +1,18 @@
 package com.jobmatrix.controller;
 
 import com.common.dto.JobPostingDTO;
+import com.common.dto.PresignedUrlResponseDTO;
 import com.common.dto.SkillDTO;
 import com.common.entity.JobPosting;
 import com.common.enums.BudgetType;
 import com.common.enums.ExperienceLevel;
 import com.common.enums.JobPostingStatus;
+import com.common.util.S3FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobmatrix.dto.JobPostingUpdateRequest;
 import com.jobmatrix.service.JobPostingService;
 import com.jobmatrix.test_utils.factory.JobPostingTestDataFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -20,12 +23,15 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.net.URL;
 import java.util.*;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(JobPostingController.class)
 public class JobPostingControllerTest {
@@ -42,6 +48,22 @@ public class JobPostingControllerTest {
     @MockitoBean
     private ModelMapper modelMapper;
 
+    @MockitoBean
+    private S3FileUtil s3FileUtil;
+
+    private PresignedUrlResponseDTO presignedUrlResponse;
+    private Map<String, PresignedUrlResponseDTO> urlResponseMap;
+
+    @BeforeEach
+    void setup() throws Exception {
+        URL uploadUrl = new URL("https://s3-upload-url");
+        presignedUrlResponse = new PresignedUrlResponseDTO(uploadUrl, "job-attachments/1/resume.pdf");
+
+        urlResponseMap = new HashMap<>();
+        urlResponseMap.put("resume.pdf", presignedUrlResponse);
+    }
+
+
     @Test
     void testCreateJobPosting() throws Exception {
         UUID clientId = UUID.randomUUID();
@@ -54,9 +76,9 @@ public class JobPostingControllerTest {
                 .thenReturn(mockJobPostingDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job_postings/create_job_posting")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(jobPostingDTO)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.jobPostingId").exists());
     }
 
@@ -70,7 +92,7 @@ public class JobPostingControllerTest {
         Mockito.when(jobPostingService.getOpenJobPostings()).thenReturn(mockJobPostings);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/open_job_postings"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Sample Job"));
     }
@@ -83,7 +105,7 @@ public class JobPostingControllerTest {
         Mockito.when(jobPostingService.getJobPostingById(jobPostingId)).thenReturn(null); // Controller returns nothing
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/" + jobPostingId))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("")); // Expect empty body
     }
 
@@ -98,7 +120,7 @@ public class JobPostingControllerTest {
         Mockito.when(jobPostingService.getJobPostingsByClientId(clientId)).thenReturn(mockJobPostings);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/client/" + clientId))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].jobPostingId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Sample Job 1"))
@@ -116,7 +138,7 @@ public class JobPostingControllerTest {
         Mockito.when(jobPostingService.getCategories()).thenReturn(mockCategories);
         // When
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/categories"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.Technology.length()", is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.Technology[0]", is("Software Development")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.Technology[1]", is("DevOps")))
@@ -143,16 +165,16 @@ public class JobPostingControllerTest {
 
         Long jobPostingId = 1L;
 
-        Mockito.when(jobPostingService.updateJobPosting(Mockito.eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class)))
+        Mockito.when(jobPostingService.updateJobPosting(eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class)))
                 .thenReturn(null); // Controller returns nothing
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/job_postings/" + jobPostingId)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("")); // Expect empty body
 
-        Mockito.verify(jobPostingService).updateJobPosting(Mockito.eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class));
+        Mockito.verify(jobPostingService).updateJobPosting(eq(jobPostingId), Mockito.any(JobPostingUpdateRequest.class));
     }
 
     @Test
@@ -170,7 +192,7 @@ public class JobPostingControllerTest {
         );
 
         Mockito.when(jobPostingService.getJobPostingsByStatuses(
-                Mockito.eq(clientId),
+                eq(clientId),
                 Mockito.argThat(list ->
                         list.containsAll(Arrays.asList(JobPostingStatus.DRAFT, JobPostingStatus.OPEN))
                 )
@@ -178,7 +200,7 @@ public class JobPostingControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
                         clientId, statuses))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.DRAFT").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.OPEN").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.DRAFT.length()").value(1))
@@ -193,13 +215,13 @@ public class JobPostingControllerTest {
         String statuses = "DRAFT,OPEN";
 
         Mockito.when(jobPostingService.getJobPostingsByStatuses(
-                Mockito.eq(clientId),
-                Mockito.anyList()
+                eq(clientId),
+                anyList()
         )).thenReturn(new HashMap<>());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
                         clientId, statuses))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
     }
 
@@ -208,12 +230,12 @@ public class JobPostingControllerTest {
         UUID clientId = UUID.randomUUID();
         String statuses = " ";
         Mockito.when(jobPostingService.getJobPostingsByStatuses(
-                Mockito.eq(clientId),
-                Mockito.eq(Collections.emptyList())
+                eq(clientId),
+                eq(Collections.emptyList())
         )).thenReturn(Collections.emptyMap());
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
                         clientId, statuses))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json("{}"));
     }
 
@@ -224,7 +246,7 @@ public class JobPostingControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/{clientId}/statuses/{statuses}",
                         clientId, statuses))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.content().string("Invalid value 'INVALID_STATUS' for enum: JobPostingStatus"));
     }
 
@@ -240,8 +262,8 @@ public class JobPostingControllerTest {
 
         // Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/job_postings/skills")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].skillId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].skill").value("Java"))
@@ -249,6 +271,37 @@ public class JobPostingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].skill").value("Spring Boot"));
 
         verify(jobPostingService, times(1)).getAllSkills();
+    }
+
+    @Test
+    void generateUploadUrlsForJobAttachments_returnsPresignedUrls() throws Exception {
+        when(s3FileUtil.generateMultipleJobAttachmentUrls(anyString(), anySet(), anyString()))
+                .thenReturn(urlResponseMap);
+
+        String requestJson = "[\"resume.pdf\"]";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job_postings/1/presigned_urls")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.['resume.pdf'].s3Key")
+                        .value(presignedUrlResponse.getS3Key()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.['resume.pdf'].uploadUrl")
+                        .value(presignedUrlResponse.getUploadUrl().toString()));
+    }
+
+    @Test
+    void addAttachmentsToJobPosting_savesAttachmentsAndReturnsOk() throws Exception {
+        doNothing().when(jobPostingService).saveJobAttachments(anyLong(), anyList());
+
+        String requestJson = "[\"job-attachments/1/resume.pdf\", \"job-attachments/1/cover.docx\"]";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/job_postings/1/attachments")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+
+        verify(jobPostingService, times(1)).saveJobAttachments(eq(1L), anyList());
     }
 
 

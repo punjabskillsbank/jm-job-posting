@@ -19,4 +19,5 @@ public interface JobPostingService {
     JobPosting updateJobPosting(Long job_Posting_Id, JobPostingUpdateRequest jobPostingUpdateRequest);
     Map<JobPostingStatus, List<JobPostingDTO>> getJobPostingsByStatuses(UUID clientId, List<JobPostingStatus> statusList);
     List<SkillDTO> getAllSkills();
+    void saveJobAttachments(Long jobPostingId, List<String> s3Keys);
 }
